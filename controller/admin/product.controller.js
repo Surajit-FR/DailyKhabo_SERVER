@@ -5,7 +5,19 @@ const path = require('path');
 
 // CreateProduct
 exports.CreateProduct = async (req, res) => {
-    const { productTitle, offer, offerPercentage, productDescription, price, availability, visibility, category } = req.body;
+    const {
+        productTitle,
+        offer,
+        offerPercentage,
+        productDescription,
+        price,
+        availability,
+        is_discount_code,
+        discountCode,
+        productKeyPoints,
+        productQuantity,
+        category
+    } = req.body;
 
     try {
         // Check if productImages exist in the request body
@@ -23,7 +35,10 @@ exports.CreateProduct = async (req, res) => {
             productDescription: productDescription.trim(),
             price: price.trim(),
             availability: availability.trim(),
-            visibility: visibility.trim(),
+            is_discount_code: is_discount_code.trim(),
+            discountCode: discountCode.trim(),
+            productKeyPoints: productKeyPoints,
+            productQuantity: Number(productQuantity),
             category: category,
         });
 
@@ -123,7 +138,19 @@ exports.GetProductDetails = async (req, res) => {
 
 // UpdateProduct
 exports.UpdateProduct = async (req, res) => {
-    const { productTitle, offer, offerPercentage, productDescription, price, availability, visibility, category } = req.body;
+    const {
+        productTitle,
+        offer,
+        offerPercentage,
+        productDescription,
+        price,
+        availability,
+        is_discount_code,
+        discountCode,
+        productKeyPoints,
+        productQuantity,
+        category
+    } = req.body;
     const { product_id } = req.params;
 
     try {
@@ -134,15 +161,17 @@ exports.UpdateProduct = async (req, res) => {
             productDescription: productDescription.trim(),
             price: price.trim(),
             availability: availability.trim(),
-            visibility: visibility.trim(),
+            is_discount_code: is_discount_code.trim(),
+            discountCode: discountCode.trim(),
+            productKeyPoints: productKeyPoints,
+            productQuantity: Number(productQuantity),
             category: category,
         };
 
-        // Check if a new product image is uploaded
-        if (req.file && req.file.path) {
-            // Remove "public" prefix from file path
-            const filePath = req.file.path.replace('public', '');
-            updateFields.productImage = filePath;
+        // Check if new product images are uploaded
+        if (req.files && req.files.length > 0) {
+            const productImages = req.files.map(file => file.path.replace('public', ''));
+            updateFields.productImages = productImages;
         }
 
         await ProductModel.findByIdAndUpdate(
@@ -154,8 +183,8 @@ exports.UpdateProduct = async (req, res) => {
         return res.status(200).json({ success: true, message: "Product updated successfully!" });
 
     } catch (exc) {
-        // Delete uploaded file if an error occurred during upload
-        if (req.file) {
+        // Delete uploaded files if an error occurred during upload
+        if (req.files && req.files.length > 0) {
             deleteUploadedFile(req);
         }
         return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });

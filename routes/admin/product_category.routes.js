@@ -57,7 +57,7 @@ router.get('/get/all/product', [
     Authorize(["all", "read"])
 ], ProductController.GetAllProduct);
 
-// Get all product
+// Get product details
 router.get('/get/product/details/:product_id', [
     RequestRate.Limiter,
     VerifyToken,
@@ -67,7 +67,7 @@ router.get('/get/product/details/:product_id', [
 // Update product
 router.post('/update/product/:product_id', [
     RequestRate.Limiter,
-    ImageUpload.single('productImage'),
+    ImageUpload.array('productImages'),
     ModelAuth(ValidateProduct),
     VerifyToken,
     Authorize(["all", "edit_update"])
