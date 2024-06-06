@@ -5,7 +5,7 @@ const { deleteUploadedFile } = require('../../helpers/delete_file');
 
 // VerifyToken
 exports.VerifyToken = async (req, res, next) => {
-    let token = req.body.token || req.query.token || req.headers["x-access-token"] || req.headers.authorization || req.body.headers.Authorization;
+    let token = req.body.token || req.query.token || req.headers["x-access-token"] || req.headers.authorization || req.body.headers?.Authorization;
     try {
         if (!token) {
             return res.status(401).json({ success: false, message: "Token required for authorization", key: "token" });
@@ -24,7 +24,6 @@ exports.VerifyToken = async (req, res, next) => {
     } catch (exc) {
         // Delete uploaded file if an error occurred during upload
         deleteUploadedFile(req);
-        console.log(exc.message);
         return res.status(401).json({ success: false, message: "Session Expired. Please Login !!", error: exc.message });
     };
 };

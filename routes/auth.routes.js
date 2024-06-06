@@ -8,7 +8,7 @@ const AuthController = require('../controller/auth/auth.controller');
 const ValidateUser = require('../model/validator/user.validate');
 const { VerifyToken } = require('../middleware/auth/auth_user');
 
-/**************************************************** AUTH ROUTES ****************************************************/
+/**************************************************** ADMIN AUTH ROUTES ****************************************************/
 
 // Sign-Up
 router.post('/register', [RequestRate.Limiter, ModelAuth(ValidateUser), DuplicateUserCheck], AuthController.RegisterRegular);
