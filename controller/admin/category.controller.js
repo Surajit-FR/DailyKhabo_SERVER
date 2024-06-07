@@ -4,9 +4,17 @@ const CategoryModel = require('../../model/category.model');
 exports.CreateCategory = async (req, res) => {
     const { category_name, category_desc } = req.body;
     try {
+        // Check if categoryImage exists in the request body
+        if (!req.file || !req.file.path) {
+            return res.status(400).json({ success: false, message: "A category image is required!" });
+        }
+
+        // Remove "public" prefix from file path
+        const filePath = req?.file?.path?.replace('public', '');
 
         const NewCategory = new CategoryModel({
             category_name: category_name.trim(),
+            categoryImage: filePath,
             category_desc: category_desc.trim(),
         });
         // Generate categoryID based on _id
@@ -64,12 +72,21 @@ exports.UpdateCategory = async (req, res) => {
     const { category_id } = req.params;
 
     try {
+        let updateFields = {
+            category_name: category_name.trim(),
+            category_desc: category_desc.trim(),
+        };
+
+        // Check if a new product image is uploaded
+        if (req.file && req.file.path) {
+            // Remove "public" prefix from file path
+            const filePath = req.file.path.replace('public', '');
+            updateFields.categoryImage = filePath;
+        }
+
         await CategoryModel.findByIdAndUpdate(
             { _id: category_id },
-            {
-                category_name: category_name.trim(),
-                category_desc: category_desc.trim(),
-            },
+            updateFields,
             { new: true }
         );
 

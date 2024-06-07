@@ -13,6 +13,7 @@ const ValidateProduct = require('../../model/validator/product.validate');
 // Add new category
 router.post('/add/new/category', [
     RequestRate.Limiter,
+    ImageUpload.single('categoryImage'),
     ModelAuth(ValidateCategory),
     VerifyToken,
     Authorize(["all", "write_create"])
@@ -28,8 +29,9 @@ router.get('/get/all/category', [
 // Update category
 router.post('/update/category/:category_id', [
     RequestRate.Limiter,
-    VerifyToken,
+    ImageUpload.single('categoryImage'),
     ModelAuth(ValidateCategory),
+    VerifyToken,
     Authorize(["all", "delete"])
 ], CategoryController.UpdateCategory);
 

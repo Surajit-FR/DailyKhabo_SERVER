@@ -1,6 +1,7 @@
 const UserModel = require('../../model/user.model');
 const SecurePassword = require('../../helpers/secure_password');
 const CreateToken = require('../../helpers/create_token');
+const RoleModel = require('../../model/role.model');
 
 
 // LoginRegular
@@ -32,12 +33,25 @@ exports.LoginRegular = async (req, res) => {
 exports.RegisterRegular = async (req, res) => {
     const { full_name, email, password, role } = req.body;
     try {
+        const ROLE = await RoleModel.find({ name: role });
+
+        // Retrive the role's objectId as per user role
+        var _role;
+        // For role ---> "User"
+        if (ROLE[0].name === "User") {
+            _role = ROLE[0]._id;
+        }
+        // For role ---> "SuperAdmin"
+        if (ROLE[0].name === "SuperAdmin") {
+            _role = ROLE[0]._id;
+        }
+
         const HashedPassword = await SecurePassword(password);
         const NewUser = await UserModel({
             full_name,
             email: email.toLowerCase(),
             password: HashedPassword,
-            role
+            role: _role,
         });
 
         const userData = await NewUser.save();

@@ -27,10 +27,8 @@ module.exports = (UserModel) => {
             "string.max": "Phone number length should be 10 digits long",
             "string.pattern.base": "Only numbers are allowed !!",
         }),
-        role: JOI.string().hex().length(24).required().messages({
+        role: JOI.string().required().messages({
             "string.empty": "Role is required !!",
-            "string.hex": "Invalid ObjectId format !!",
-            "string.length": "Invalid ObjectId length !!",
         }),
         is_active: JOI.boolean().default(false),
         is_delete: JOI.boolean().default(false),
