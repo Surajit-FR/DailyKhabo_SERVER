@@ -11,6 +11,7 @@ const ProductSchema = new Schema({
     productDescription: { type: String, required: false },
     productKeyPoints: [{ type: String, required: false }],
     price: { type: String, required: true },
+    finalPrice: { type: Number, required: true },
     availability: { type: String, required: true },
     productQuantity: { type: Number, required: true },
     category: { type: Schema.Types.ObjectId, ref: 'category' },

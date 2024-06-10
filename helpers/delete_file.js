@@ -2,7 +2,7 @@
 const fs = require('fs');
 
 exports.deleteUploadedFile = async (req) => {
-    if (req?.file) {
+    if (req?.files) {
         try {
             await fs.promises.unlink(req.file.path);
             console.log("File deleted successfully");

@@ -6,7 +6,7 @@ module.exports = (validator) => {
         if (error) {
             return res.status(400).json({ success: false, message: error?.details[0]?.message, key: error?.details[0]?.path[0] });
         }
-
+        req.validatedBody = value;
         next();
     };
 };

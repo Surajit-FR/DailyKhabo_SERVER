@@ -15,6 +15,7 @@ const Admin_ProductCategoryRoutes = require('./routes/admin/product_category.rou
 
 // USER
 const User_ProductCategoryRoutes = require('./routes/user/product_category.routes');
+const User_CartRoutes = require('./routes/user/cart.routes');
 
 require('dotenv').config();
 
@@ -72,13 +73,14 @@ app.get('/health', (req, res) => {
 // ADMIN API routes
 app.use('/admin/api', [
     Role_PermissionRoutes,
-    Admin_ProductCategoryRoutes
+    Admin_ProductCategoryRoutes,
 ]);
 
 /* USER */
 // USER API routes
 app.use('/user/api', [
-    User_ProductCategoryRoutes
+    User_ProductCategoryRoutes,
+    User_CartRoutes,
 ]);
 
 /* AUTH */

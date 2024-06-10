@@ -27,6 +27,17 @@ exports.CreateProduct = async (req, res) => {
 
         const productImages = req.files.map(file => file.path.replace('public', ''));
 
+        // Parse numbers for calculations
+        const priceValue = parseFloat(price.trim());
+        const offerPercentageValue = parseFloat(offerPercentage);
+
+        let finalPrice = priceValue;
+
+        // Calculate finalPrice if offer is true and offerPercentage is valid
+        if (offer === "true" && !isNaN(offerPercentageValue)) {
+            finalPrice = priceValue - (priceValue * offerPercentageValue / 100);
+        }
+
         const NewProduct = new ProductModel({
             productTitle: productTitle.trim(),
             offer: offer.trim(),
@@ -34,6 +45,7 @@ exports.CreateProduct = async (req, res) => {
             productImages: productImages,
             productDescription: productDescription.trim(),
             price: price.trim(),
+            finalPrice: finalPrice,
             availability: availability.trim(),
             is_discount_code: is_discount_code.trim(),
             discountCode: discountCode.trim(),
@@ -154,12 +166,25 @@ exports.UpdateProduct = async (req, res) => {
     const { product_id } = req.params;
 
     try {
+
+        // Parse numbers for calculations
+        const priceValue = parseFloat(price.trim());
+        const offerPercentageValue = parseFloat(offerPercentage);
+
+        let finalPrice = priceValue;
+
+        // Calculate finalPrice if offer is true and offerPercentage is valid
+        if (offer === "true" && !isNaN(offerPercentageValue)) {
+            finalPrice = priceValue - (priceValue * offerPercentageValue / 100);
+        }
+
         let updateFields = {
             productTitle: productTitle.trim(),
             offer: offer.trim(),
             offerPercentage: offerPercentage.trim(),
             productDescription: productDescription.trim(),
             price: price.trim(),
+            finalPrice: finalPrice,
             availability: availability.trim(),
             is_discount_code: is_discount_code.trim(),
             discountCode: discountCode.trim(),
@@ -204,7 +229,7 @@ exports.DeleteProduct = async (req, res) => {
         }
 
         // Get the image path
-        const imagePath = product.productImage;
+        const imagePath = product.productImages;
 
         // Construct the correct absolute path
         const absoluteImagePath = path.join(__dirname, '..', '..', 'public', 'product_images', 'uploads', path.basename(imagePath));
