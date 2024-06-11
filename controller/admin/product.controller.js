@@ -88,7 +88,7 @@ exports.GetAllProduct = async (req, res) => {
                 { productTitle: { $regex: searchQuery, $options: 'i' } },
                 // { productDescription: { $regex: searchQuery, $options: 'i' } }
             ];
-        };
+        }
 
         // Add category filter if category is not empty
         if (category) {
@@ -116,12 +116,21 @@ exports.GetAllProduct = async (req, res) => {
         // Calculate total pages
         const totalPages = Math.ceil(totalCount / pageSize);
 
+        // Calculate the range of items displayed on the current page
+        const startIndex = skip + 1;
+        const endIndex = Math.min(skip + pageSize, totalCount);
+
         return res.status(200).json({
             success: true,
             message: "Data fetched successfully!",
             data: all_product_data,
             totalPages: totalPages,
-            currentPage: page
+            currentPage: page,
+            totalItems: totalCount,
+            showing: {
+                startIndex: startIndex,
+                endIndex: endIndex
+            }
         });
 
     } catch (exc) {
