@@ -63,31 +63,47 @@ exports.RegisterRegular = async (req, res) => {
     };
 };
 
-// SetWebSiteTheme
-exports.SetWebSiteTheme = async (req, res) => {
-    const { web_theme } = req.body;
+// Verify Email
+exports.VerifyEmail = async (req, res) => {
     try {
-        // Accessing the user object attached by the middleware 
-        const decoded_token = req.decoded_token;
+        const { email } = req.body;
+        const existingUser = await UserModel.findOne({ email });
 
-        const _DATA = await UserModel.findByIdAndUpdate(
-            decoded_token._id,
-            {
-                web_theme: web_theme,
-            },
-            { new: true }
-        ).populate({
-            path: 'role',
-            populate: {
-                path: 'permissions',
-                select: '-_id -description -createdAt -updatedAt -__v'
-            },
-            select: '-_id -createdAt -updatedAt -__v -role.permissions'
-        }).exec();
+        if (existingUser) {
+            if (existingUser.email === email) {
+                return res.status(200).json({ success: true, message: "Email Verified. Please set new password!" });
+            }
+        } else {
+            return res.status(404).json({ success: true, message: "Account not found. Double-check your credential.", key: "email" });
+        }
 
-        const USER_DATA = { ..._DATA._doc, remember_me: decoded_token.remember_me };
-        const tokenData = CreateToken(USER_DATA);
-        return res.status(200).json({ success: true, message: "Theme updated successfully!", data: USER_DATA, token: tokenData });
+    } catch (exc) {
+        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+    };
+};
+
+// Reset Password
+exports.ResetPassword = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        // Validate the email and password
+        if (!email || !password) {
+            return res.status(400).json({ success: false, message: "Email and password are required" });
+        }
+
+        const existingUser = await UserModel.findOne({ email });
+
+        if (!existingUser) {
+            return res.status(404).json({ success: false, message: "Account not found. Double-check your credentials.", key: "email" });
+        }
+
+        const HashedPassword = await SecurePassword(password);
+        // Update the user's password in the database
+        existingUser.password = HashedPassword;
+        await existingUser.save();
+
+        return res.status(200).json({ success: true, message: "Password updated successfully!" });
+
     } catch (exc) {
         return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
     };
