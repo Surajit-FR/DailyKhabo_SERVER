@@ -17,7 +17,7 @@ router.post('/add/cart', [
 ], CartController.AddCart);
 
 // Increase & Decrease cart
-router.post('/update/cart/item', [
+router.post('/update/cart/quantity', [
     RequestRate.Limiter,
     VerifyToken,
     ModelAuth(ValidateCart),

@@ -62,7 +62,7 @@ exports.UpdateCartQuantity = async (req, res) => {
 
         existingCart.cart_quantity = newQuantity;
         await existingCart.save();
-        return res.status(200).json({ success: true, message: "Product quantity increased in the cart." });
+        return res.status(200).json({ success: true, message: "Product quantity updated in the cart." });
     } catch (exc) {
         return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
     };
