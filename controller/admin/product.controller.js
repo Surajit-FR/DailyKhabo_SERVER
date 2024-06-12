@@ -74,7 +74,7 @@ exports.GetAllProduct = async (req, res) => {
 
         // Search and filter parameters
         const searchQuery = req.query.search || '';
-        const category = req.query.category;
+        const category = req?.query?.category || '';
 
         const minPrice = parseFloat(req.query.minPrice) || 0;
         const maxPrice = parseFloat(req.query.maxPrice) || Number.MAX_SAFE_INTEGER;
