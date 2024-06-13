@@ -6,16 +6,19 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const { ConnectToDataBase } = require('./config/database_config');
 const http = require('http');
+const cronJob = require('./jobs/cronJob');
 
 const AuthRoutes = require('./routes/auth.routes');
 
 // ADMIN
 const Role_PermissionRoutes = require('./routes/admin/role_permission.routes');
 const Admin_ProductCategoryRoutes = require('./routes/admin/product_category.routes');
+const Admin_CouponRoutes = require('./routes/admin/coupon.routes');
 
 // USER
 const User_ProductCategoryRoutes = require('./routes/user/product_category.routes');
 const User_CartRoutes = require('./routes/user/cart.routes');
+const User_OrderRoutes = require('./routes/user/order.routes');
 
 require('dotenv').config();
 
@@ -74,6 +77,7 @@ app.get('/health', (req, res) => {
 app.use('/admin/api', [
     Role_PermissionRoutes,
     Admin_ProductCategoryRoutes,
+    Admin_CouponRoutes,
 ]);
 
 /* USER */
@@ -81,6 +85,7 @@ app.use('/admin/api', [
 app.use('/user/api', [
     User_ProductCategoryRoutes,
     User_CartRoutes,
+    User_OrderRoutes,
 ]);
 
 /* AUTH */
@@ -119,3 +124,6 @@ const HOST = `${process.env.HOST}:${PORT}` || `http://localhost:${PORT}`;
 server.listen(PORT, () => {
     console.log(`Server Connected On Port ${HOST}`)
 });
+
+// Start the cron job
+cronJob();

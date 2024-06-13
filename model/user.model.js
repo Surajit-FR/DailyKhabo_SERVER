@@ -12,4 +12,4 @@ const UserSchema = new Schema({
     is_delete: { type: Boolean, default: false },
 }, { timestamps: true });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('user', UserSchema);
