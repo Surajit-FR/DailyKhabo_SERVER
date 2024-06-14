@@ -6,6 +6,7 @@ const { HandleRegularLoginError } = require('../middleware/auth/creds_validation
 const { DuplicateUserCheck } = require('../middleware/auth/duplicate_check');
 const AuthController = require('../controller/auth/auth.controller');
 const ValidateUser = require('../model/validator/user.validate');
+const { VerifyToken } = require('../middleware/auth/auth_user');
 
 /**************************************************** ADMIN AUTH ROUTES ****************************************************/
 
@@ -17,6 +18,8 @@ router.post('/login', [RequestRate.Limiter, HandleRegularLoginError], AuthContro
 router.post('/verify/email', [RequestRate.Limiter], AuthController.VerifyEmail);
 // Reset password
 router.post('/reset/password', [RequestRate.Limiter], AuthController.ResetPassword);
+// update theme
+router.post('/update/theme', [RequestRate.Limiter, VerifyToken], AuthController.SetWebSiteTheme);
 
 
 module.exports = router;

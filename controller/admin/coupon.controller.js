@@ -1,5 +1,6 @@
 const { generateCouponCode, insertInChunks } = require('../../helpers/generate_coupon_code');
 const CouponModel = require('../../model/coupon.model');
+const mongoose = require('mongoose');
 
 // Create Coupon
 exports.CreateCoupon = async (req, res) => {
@@ -71,4 +72,21 @@ exports.GetAllCoupons = async (req, res) => {
     } catch (exc) {
         return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
     }
+};
+
+// Delete coupons
+exports.DeleteCoupons = async (req, res) => {
+    const selectedIDs = req.body;
+
+    try {
+        // Validate selectedIDs to ensure they are valid MongoDB ObjectId strings
+        const validIDs = selectedIDs.filter(id => mongoose.Types.ObjectId.isValid(id));
+
+        // Delete coupons based on the valid IDs
+        const deleteResult = await CouponModel.deleteMany({ _id: { $in: validIDs } });
+
+        return res.json({ success: true, message: `${deleteResult.deletedCount} coupons deleted successfully.` });
+    } catch (exc) {
+        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+    };
 };

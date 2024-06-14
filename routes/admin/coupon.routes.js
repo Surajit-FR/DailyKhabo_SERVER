@@ -23,5 +23,12 @@ router.get('/get/all/coupons', [
     Authorize(["all", "read"])
 ], CouponController.GetAllCoupons);
 
+// Delete coupons
+router.post('/delete/coupons', [
+    RequestRate.Limiter,
+    VerifyToken,
+    Authorize(["all", "delete"])
+], CouponController.DeleteCoupons);
+
 
 module.exports = router;
