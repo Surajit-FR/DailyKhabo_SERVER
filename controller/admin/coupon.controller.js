@@ -33,18 +33,29 @@ exports.CreateCoupon = async (req, res) => {
 // Get all Coupon
 exports.GetAllCoupons = async (req, res) => {
     try {
-        // Pagination parameters
-        const page = parseInt(req.query.page);
-        const pageSize = parseInt(req.query.pageSize);
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = parseInt(req.query.pageSize) || 10;
+        const isExpired = req?.query?.isExpired;
 
-        // Calculate skip value
+        // Create a query object to filter documents
+        const query = {};
+
+        // If isExpired is defined and is not an empty string, add it to the query
+        if (isExpired === 'true') {
+            query.is_expired = true;
+        } else if (isExpired === 'false') {
+            query.is_expired = false;
+        }
+
+        // Calculate the skip value for pagination
         const skip = (page - 1) * pageSize;
 
-        // Fetch paginated coupons with only necessary fields
-        const coupons = await CouponModel.find({}, 'discount_coupon discount_amount expiry_date is_expired')
+        // Find coupons with the specified query, applying pagination
+        const coupons = await CouponModel.find(query, 'discount_coupon discount_amount expiry_date is_expired')
             .skip(skip)
             .limit(pageSize);
 
+        // Update the is_expired field based on the current date
         const now = new Date();
         const updatedCoupons = await Promise.all(
             coupons.map(async (coupon) => {
@@ -57,11 +68,12 @@ exports.GetAllCoupons = async (req, res) => {
             })
         );
 
-        // Count total number of documents
-        const totalCount = await CouponModel.countDocuments({});
-        // Calculate total pages
+        // Count total documents that match the query
+        const totalCount = await CouponModel.countDocuments(query);
+        // Calculate total pages based on totalCount
         const totalPages = Math.ceil(totalCount / pageSize);
 
+        // Return paginated, filtered, and updated coupons
         return res.status(200).json({
             success: true,
             message: "Data fetched successfully!",
