@@ -1,5 +1,6 @@
 const { findUserByCredential } = require('../../helpers/find_user_by_credential');
 const bcrypt_js = require('bcryptjs');
+const UserModel = require('../../model/user.model');
 
 
 // HandleRegularLoginError
@@ -36,5 +37,31 @@ exports.HandleRegularLoginError = async (req, res, next) => {
     } catch (exc) {
         console.log(exc.message);
         return res.status(500).json({ success: false, message: "Something Went Wrong Please Try Again", error: exc.message });
+    };
+};
+
+// CheckUser
+exports.CheckUser = async (req, res, next) => {
+    const { user_type } = req.body;
+    try {
+
+        const user = await UserModel.findById({ _id: req.user._id })
+            .populate({
+                path: 'role',
+                populate: {
+                    path: 'permissions',
+                    select: '-_id -description -createdAt -updatedAt -__v'
+                },
+                select: '-_id -createdAt -updatedAt -__v -role.permissions'
+            })
+            .exec();
+
+        if (user_type !== user.role.name) {
+            return res.status(403).json({ success: false, message: "Invalid user!", key: "user" });
+        }
+
+        next();
+    } catch (exc) {
+        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
     };
 };

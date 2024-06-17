@@ -54,7 +54,9 @@ exports.Authorize = (permissions) => {
 
             if (hasPermission) {
                 req.user = user;
-                return next();
+                if (user.role.name === "SuperAdmin") {
+                    return next();
+                };
             };
 
             return res.status(403).json({ success: false, message: 'Permissions denied' });
