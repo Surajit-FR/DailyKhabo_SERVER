@@ -1,6 +1,8 @@
 const { generateCouponCode, insertInChunks } = require('../../helpers/generate_coupon_code');
 const CouponModel = require('../../model/coupon.model');
 const mongoose = require('mongoose');
+const { Parser } = require('json2csv');
+const moment = require('moment');
 
 // Create Coupon
 exports.CreateCoupon = async (req, res) => {
@@ -101,4 +103,35 @@ exports.DeleteCoupons = async (req, res) => {
     } catch (exc) {
         return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
     };
+};
+
+// Coupon CSV download
+exports.DownloadCouponsCsv = async (req, res) => {
+    try {
+        // Fetch all coupon data
+        const coupons = await CouponModel.find({}, 'discount_coupon discount_amount expiry_date is_expired');
+
+        // Transform data to match the required CSV format
+        const transformedData = coupons.map(coupon => ({
+            'Coupon': coupon.discount_coupon,
+            'Discount Amount': coupon.discount_amount,
+            'Expiry Date': moment(coupon.expiry_date).format('YYYY-MM-DD HH:mm:ss'),
+            'Coupon Status': coupon.is_expired ? 'Expired' : 'Active',
+        }));
+
+        // Define fields for the CSV
+        const fields = ['Coupon', 'Discount Amount', 'Expiry Date', 'Coupon Status'];
+        const json2csvParser = new Parser({ fields });
+
+        // Convert JSON data to CSV
+        const csv = json2csvParser.parse(transformedData);
+
+        // Set headers to force download
+        res.header('Content-Type', 'text/csv');
+        res.attachment('coupons.csv');
+        return res.status(200).send(csv);
+    } catch (exc) {
+        console.log(exc.message);
+        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+    }
 };
