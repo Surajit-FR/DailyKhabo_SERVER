@@ -20,6 +20,9 @@ const User_ProductCategoryRoutes = require('./routes/user/product_category.route
 const User_CartRoutes = require('./routes/user/cart.routes');
 const User_OrderRoutes = require('./routes/user/order.routes');
 
+// TEST
+const Test_Routes = require('./routes/test/test.routes');
+
 require('dotenv').config();
 
 // Database connection
@@ -86,6 +89,12 @@ app.use('/user/api', [
     User_ProductCategoryRoutes,
     User_CartRoutes,
     User_OrderRoutes,
+]);
+
+/* TEST */
+// TEST API routes
+app.use('/test/api', [
+    Test_Routes,
 ]);
 
 /* AUTH */

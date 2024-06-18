@@ -1,4 +1,4 @@
-const { deleteUploadedFile } = require('../../helpers/delete_file');
+const { deleteUploadedFiles } = require('../../helpers/delete_file');
 const ProductModel = require('../../model/product.model');
 const fs = require('fs');
 const path = require('path');
@@ -12,8 +12,8 @@ exports.CreateProduct = async (req, res) => {
         productDescription,
         price,
         availability,
-        is_discount_code,
-        discountCode,
+        is_coupon_code,
+        // discountCode,
         productKeyPoints,
         productQuantity,
         category
@@ -47,8 +47,8 @@ exports.CreateProduct = async (req, res) => {
             price: price.trim(),
             finalPrice: finalPrice,
             availability: availability.trim(),
-            is_discount_code: is_discount_code.trim(),
-            discountCode: discountCode.trim(),
+            is_coupon_code: is_coupon_code.trim(),
+            // discountCode: discountCode.trim(),
             productKeyPoints: productKeyPoints,
             productQuantity: Number(productQuantity),
             category: category,
@@ -60,7 +60,7 @@ exports.CreateProduct = async (req, res) => {
 
     } catch (exc) {
         // Delete uploaded file if an error occurred during upload
-        deleteUploadedFile(req);
+        deleteUploadedFiles(req);
         return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
     }
 };
@@ -166,8 +166,8 @@ exports.UpdateProduct = async (req, res) => {
         productDescription,
         price,
         availability,
-        is_discount_code,
-        discountCode,
+        is_coupon_code,
+        // discountCode,
         productKeyPoints,
         productQuantity,
         category
@@ -195,8 +195,8 @@ exports.UpdateProduct = async (req, res) => {
             price: price.trim(),
             finalPrice: finalPrice,
             availability: availability.trim(),
-            is_discount_code: is_discount_code.trim(),
-            discountCode: discountCode.trim(),
+            is_coupon_code: is_coupon_code.trim(),
+            // discountCode: discountCode.trim(),
             productKeyPoints: productKeyPoints,
             productQuantity: Number(productQuantity),
             category: category,
@@ -219,7 +219,7 @@ exports.UpdateProduct = async (req, res) => {
     } catch (exc) {
         // Delete uploaded files if an error occurred during upload
         if (req.files && req.files.length > 0) {
-            deleteUploadedFile(req);
+            deleteUploadedFiles(req);
         }
         return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
     }

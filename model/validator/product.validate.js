@@ -17,16 +17,16 @@ module.exports = (ProductModel) => {
             }),
             otherwise: JOI.string().allow("").optional()
         }),
-        is_discount_code: JOI.boolean().default(false),
-        discountCode: JOI.when('is_discount_code', {
-            is: "true",
-            then: JOI.string().regex(/^[A-Z0-9]$/).required().messages({
-                "string.pattern.base": "Discount code must be in the format 'ABC123'!",
-                "any.required": "Discount code is required when 'Discount code' is true!",
-                "string.empty": "Discount code cannot be empty when 'Discount code' is true!",
-            }),
-            otherwise: JOI.string().allow("").optional()
-        }),
+        is_coupon_code: JOI.boolean().default(false),
+        // discountCode: JOI.when('is_discount_code', {
+        //     is: "true",
+        //     then: JOI.string().regex(/^[A-Z0-9]$/).required().messages({
+        //         "string.pattern.base": "Discount code must be in the format 'ABC123'!",
+        //         "any.required": "Discount code is required when 'Discount code' is true!",
+        //         "string.empty": "Discount code cannot be empty when 'Discount code' is true!",
+        //     }),
+        //     otherwise: JOI.string().allow("").optional()
+        // }),
         productDescription: JOI.string().allow("").optional().messages({
             "array.base": "Product description must be in string format!",
         }),
@@ -46,6 +46,8 @@ module.exports = (ProductModel) => {
         category: JOI.string().required().messages({
             "string.empty": "A category is required!",
         }),
+        is_banner: JOI.boolean().default(false),
+        is_featured: JOI.boolean().default(false),
         is_delete: JOI.boolean().default(false),
         createdAt: JOI.date().optional(),
         updatedAt: JOI.date().optional()
