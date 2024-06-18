@@ -126,14 +126,28 @@ exports.GetAllCartData = async (req, res) => {
             };
         });
 
+        // Fetching shipping charge based on totalAmount
+        let shippingCharge = 0;
+        const freeShippingThreshold = parseFloat(process.env.FREE_SHIPPING_THRESHOLD) || 0;
+
+        if (totalAmount > freeShippingThreshold) {
+            shippingCharge = 0; // Free shipping
+        } else {
+            shippingCharge = parseFloat(process.env.SHIPPING_CHARGE) || 0;
+        }
+
+        // Calculate total amount including shipping charge
+        const totalAmountWithShipping = totalAmount + shippingCharge;
+
         return res.status(200).json({
             success: true,
             message: "Cart data fetched successfully",
             data: detailedCartData,
             totalAmount: Number(totalAmount.toFixed(2)),
+            shippingCharge: Number(shippingCharge.toFixed(2)),
+            totalAmountWithShipping: Number(totalAmountWithShipping.toFixed(2)),
         });
     } catch (exc) {
         return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
-    }
+    };
 };
-
