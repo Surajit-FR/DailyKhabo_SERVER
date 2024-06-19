@@ -1,4 +1,6 @@
+const { getAllCartData } = require('../../helpers/get_all_cart_data');
 const CartModel = require('../../model/cart.model');
+const CouponModel = require('../../model/coupon.model');
 const { removeCartItem } = require('../../services/delete.service');
 
 // AddCart
@@ -91,63 +93,39 @@ exports.GetAllCartData = async (req, res) => {
     try {
         const decoded_token = req.decoded_token;
         const userId = decoded_token._id;
-
-        // Fetch cart data with necessary product fields only
-        const cart_data = await CartModel.find({ user: userId })
-            .populate({
-                path: 'product',
-                select: 'productTitle price finalPrice productImages'
-            });
-
-        // Prepare the response data
-        let totalAmount = 0;
-        const detailedCartData = cart_data.map(item => {
-            const product = item.product;
-            const quantity = Number(item.cart_quantity);
-            const price = Number(product.price);
-            const finalPrice = Number(product.finalPrice);
-            const itemTotal = quantity * finalPrice;
-            totalAmount += itemTotal;
-
-            return {
-                _id: item._id,
-                product: {
-                    _id: product._id,
-                    productTitle: product.productTitle,
-                    productImages: product.productImages,
-                    price: Number(price.toFixed(2)),
-                    finalPrice: Number(finalPrice.toFixed(2)),
-                    quantity: quantity,
-                    totalPrice: Number(itemTotal.toFixed(2)),
-                },
-                cart_quantity: Number(item.cart_quantity),
-                createdAt: item.createdAt,
-                updatedAt: item.updatedAt
-            };
-        });
-
-        // Fetching shipping charge based on totalAmount
-        let shippingCharge = 0;
-        const freeShippingThreshold = parseFloat(process.env.FREE_SHIPPING_THRESHOLD) || 0;
-
-        if (totalAmount > freeShippingThreshold) {
-            shippingCharge = 0; // Free shipping
-        } else {
-            shippingCharge = parseFloat(process.env.SHIPPING_CHARGE) || 0;
-        }
-
-        // Calculate total amount including shipping charge
-        const totalAmountWithShipping = totalAmount + shippingCharge;
+        const couponCode = req.query.couponCode || '';
+        
+        const cartData = await getAllCartData(userId, couponCode);
 
         return res.status(200).json({
             success: true,
             message: "Cart data fetched successfully",
-            data: detailedCartData,
-            totalAmount: Number(totalAmount.toFixed(2)),
-            shippingCharge: Number(shippingCharge.toFixed(2)),
-            totalAmountWithShipping: Number(totalAmountWithShipping.toFixed(2)),
+            ...cartData
         });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
-    };
+        return res.status(500).json({ success: false, message: exc.message });
+    }
+};
+
+// ApplyCoupon
+exports.ApplyCoupon = async (req, res) => {
+    try {
+        const decoded_token = req.decoded_token;
+        const userId = decoded_token._id;
+        const { couponCode } = req.body;
+
+        if (!couponCode) {
+            return res.status(400).json({ success: false, message: "Coupon code is required" });
+        }
+
+        const cartData = await getAllCartData(userId, couponCode);
+
+        return res.status(200).json({
+            success: true,
+            message: "Coupon applied successfully.",
+            ...cartData
+        });
+    } catch (exc) {
+        return res.status(500).json({ success: false, message: exc.message });
+    }
 };

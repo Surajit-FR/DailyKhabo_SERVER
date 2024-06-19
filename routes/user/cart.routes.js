@@ -35,5 +35,9 @@ router.get('/get/all/cart/data', [
     VerifyToken,
 ], CartController.GetAllCartData);
 
+// Apply coupon
+router.post('/apply/coupon', [
+    VerifyToken,
+], CartController.ApplyCoupon);
 
 module.exports = router;
