@@ -1,6 +1,8 @@
 const CartModel = require('../model/cart.model');
 const CouponModel = require('../model/coupon.model');
+const ProductModel = require('../model/product.model');
 
+// getAllCartData function for multiple use
 exports.getAllCartData = async (userId, couponCode = '') => {
     // Fetch cart data with necessary product fields only
     const cart_data = await CartModel.find({ user: userId })
@@ -60,10 +62,7 @@ exports.getAllCartData = async (userId, couponCode = '') => {
             // Apply the coupon discount
             discountAmount = coupon.discount_amount;
             totalAmount -= discountAmount;
-
-            // // Mark the coupon as expired
-            // coupon.is_expired = true;
-            // await coupon.save();
+            
         } else {
             throw new Error("Coupon not found or already expired");
         }
@@ -74,9 +73,39 @@ exports.getAllCartData = async (userId, couponCode = '') => {
 
     return {
         data: detailedCartData,
-        totalAmount: Number(totalAmount.toFixed(2)),
-        shippingCharge: Number(shippingCharge.toFixed(2)),
-        discountAmount: Number(discountAmount.toFixed(2)),
-        totalAmountWithShipping: Number(totalAmountWithShipping.toFixed(2)),
+        totalAmount: detailedCartData.length > 0 ? Number(totalAmount.toFixed(2)) : 0,
+        shippingCharge: detailedCartData.length > 0 ? Number(shippingCharge.toFixed(2)) : 0,
+        discountAmount: detailedCartData.length > 0 ? Number(discountAmount.toFixed(2)) : 0,
+        totalAmountWithShipping: detailedCartData.length > 0 ? Number(totalAmountWithShipping.toFixed(2)) : 0,
     };
+};
+
+// Function to remove items from the cart
+exports.removeCartItems = async (userId, items) => {
+    for (let item of items) {
+        await CartModel.findOneAndDelete({
+            _id: item.cart,
+            user: userId,
+            product: item.product,
+        });
+    }
+};
+
+// Function to update product quantities
+exports.updateProductQuantities = async (items) => {
+    for (let item of items) {
+        // Decrement the product quantity by the item's quantity
+        await ProductModel.updateOne(
+            { _id: item.product },
+            { $inc: { productQuantity: -item.quantity } } // Decrease quantity
+        );
+    }
+};
+
+// Function to expire the coupon
+exports.expireCoupon = async (couponCode) => {
+    await CouponModel.findOneAndUpdate(
+        { discount_coupon: couponCode },
+        { $set: { is_expired: true } }
+    );
 };

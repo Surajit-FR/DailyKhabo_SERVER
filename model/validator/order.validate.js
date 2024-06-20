@@ -37,6 +37,10 @@ module.exports = (OrderModel) => {
         // Items ordered
         items: JOI.array().items(
             JOI.object({
+                cart: JOI.string().regex(/^[a-fA-F0-9]{24}$/).required().messages({
+                    "string.pattern.base": "Cart ID must be a valid ObjectId!",
+                    "any.required": "Product ID is required!"
+                }),
                 product: JOI.string().regex(/^[a-fA-F0-9]{24}$/).required().messages({
                     "string.pattern.base": "Product ID must be a valid ObjectId!",
                     "any.required": "Product ID is required!"
@@ -80,7 +84,7 @@ module.exports = (OrderModel) => {
         // Optional timestamps (createdAt and updatedAt)
         createdAt: JOI.date().optional(),
         updatedAt: JOI.date().optional()
-    });
+    }).unknown(true);
 
     // Validate the order data
     return OrderSchema.validate(OrderModel, { abortEarly: false });

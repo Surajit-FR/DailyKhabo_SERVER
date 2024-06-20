@@ -7,7 +7,7 @@ exports.getAllRoles = async (req, res) => {
         const roles = await RoleModel.find().populate('permissions');
         return res.status(200).json({ success: true, message: "Data fetched successfully", data: roles });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -19,7 +19,7 @@ exports.createRole = async (req, res) => {
         await newRole.save();
         return res.status(201).json({ success: true, message: "New role created." });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -32,7 +32,7 @@ exports.getRoleById = async (req, res) => {
         }
         return res.status(200).json({ success: true, message: "Data fetched successfully", data: role });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -50,7 +50,7 @@ exports.updateRole = async (req, res) => {
         }
         return res.status(200).json({ success: true, message: "Data fetched successfully", data: updatedRole });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -63,6 +63,6 @@ exports.deleteRole = async (req, res) => {
         }
         return res.status(200).json({ success: true, message: 'Role deleted successfully' });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };

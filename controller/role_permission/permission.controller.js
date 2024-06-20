@@ -6,7 +6,7 @@ exports.getAllPermissions = async (req, res) => {
         const permissions = await PermissionModel.find();
         return res.status(200).json({ success: true, message: "Data fetched successfully", data: permissions });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -18,7 +18,7 @@ exports.createPermission = async (req, res) => {
         await newPermission.save();
         return res.status(201).json({ success: true, message: "Permission created successfully" });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -31,7 +31,7 @@ exports.getPermissionById = async (req, res) => {
         }
         return res.status(200).json({ success: true, message: "Data fetched successfully", data: permission });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -49,7 +49,7 @@ exports.updatePermission = async (req, res) => {
         }
         return res.status(200).json({ success: true, message: "Data fetched successfully", data: updatedPermission });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -62,6 +62,6 @@ exports.deletePermission = async (req, res) => {
         }
         return res.status(200).json({ success: true, message: 'Permission deleted successfully' });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };

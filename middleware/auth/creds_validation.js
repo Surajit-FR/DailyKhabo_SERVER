@@ -35,8 +35,7 @@ exports.HandleRegularLoginError = async (req, res, next) => {
         next();
 
     } catch (exc) {
-        console.log(exc.message);
-        return res.status(500).json({ success: false, message: "Something Went Wrong Please Try Again", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Something Went Wrong Please Try Again" });
     };
 };
 
@@ -62,6 +61,6 @@ exports.CheckUser = async (req, res, next) => {
 
         next();
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     };
 };

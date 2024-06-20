@@ -1,7 +1,7 @@
 const JWT = require('jsonwebtoken');
 const { secret_key } = require('../../helpers/secret_key');
 const UserModel = require('../../model/user.model');
-const { deleteUploadedFile } = require('../../helpers/delete_file');
+const { deleteUploadedFiles } = require('../../helpers/delete_file');
 
 // VerifyToken
 exports.VerifyToken = async (req, res, next) => {
@@ -23,7 +23,7 @@ exports.VerifyToken = async (req, res, next) => {
 
     } catch (exc) {
         // Delete uploaded file if an error occurred during upload
-        deleteUploadedFile(req);
+        deleteUploadedFiles(req);
         return res.status(401).json({ success: false, message: "Session Expired. Please Login !!", error: exc.message });
     };
 };
@@ -63,9 +63,8 @@ exports.Authorize = (permissions) => {
 
         } catch (exc) {
             // Delete uploaded file if an error occurred during upload
-            deleteUploadedFile(req);
-            console.log('Error:', exc);
-            return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+            deleteUploadedFiles(req);
+            return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
         }
     };
 };

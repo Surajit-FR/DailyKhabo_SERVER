@@ -34,6 +34,6 @@ exports.CheckProductStock = async (req, res, next) => {
 
         next();
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };

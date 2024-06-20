@@ -26,7 +26,7 @@ exports.CreateCategory = async (req, res) => {
         return res.status(201).json({ success: true, message: "New Category Added successfully!" });
 
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -62,7 +62,7 @@ exports.GetAllCategory = async (req, res) => {
         });
 
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -93,7 +93,7 @@ exports.UpdateCategory = async (req, res) => {
         return res.status(200).json({ success: true, message: "Category updated successfully!" });
 
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -123,6 +123,6 @@ exports.DeleteCategory = async (req, res) => {
         });
 
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };

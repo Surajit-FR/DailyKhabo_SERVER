@@ -22,7 +22,8 @@ const OrderSchema = new Schema({
     // Items ordered
     items: [
         {
-            product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+            cart: { type: Schema.Types.ObjectId, ref: 'cart', required: true },
+            product: { type: Schema.Types.ObjectId, ref: 'product', required: true },
             quantity: { type: Number, required: true },
         },
     ],

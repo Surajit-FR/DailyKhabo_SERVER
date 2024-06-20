@@ -1,6 +1,5 @@
-const { getAllCartData } = require('../../helpers/get_all_cart_data');
+const { getAllCartData } = require('../../helpers/cart_orde');
 const CartModel = require('../../model/cart.model');
-const CouponModel = require('../../model/coupon.model');
 const { removeCartItem } = require('../../services/delete.service');
 
 // AddCart
@@ -35,7 +34,7 @@ exports.AddCart = async (req, res) => {
             return res.status(201).json({ success: true, message: "Product added to the cart." });
         }
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -66,7 +65,7 @@ exports.UpdateCartQuantity = async (req, res) => {
         await existingCart.save();
         return res.status(200).json({ success: true, message: "Product quantity updated in the cart." });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     };
 };
 
@@ -84,7 +83,7 @@ exports.DeleteCartItem = async (req, res) => {
         return res.status(200).json({ success: true, message: "Product removed from cart." });
 
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     };
 };
 
@@ -94,7 +93,7 @@ exports.GetAllCartData = async (req, res) => {
         const decoded_token = req.decoded_token;
         const userId = decoded_token._id;
         const couponCode = req.query.couponCode || '';
-        
+
         const cartData = await getAllCartData(userId, couponCode);
 
         return res.status(200).json({
@@ -103,7 +102,7 @@ exports.GetAllCartData = async (req, res) => {
             ...cartData
         });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -126,6 +125,6 @@ exports.ApplyCoupon = async (req, res) => {
             ...cartData
         });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };

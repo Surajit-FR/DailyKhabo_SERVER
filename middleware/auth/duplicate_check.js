@@ -15,7 +15,6 @@ exports.DuplicateUserCheck = async (req, res, next) => {
         next();
 
     } catch (exc) {
-        console.log(exc.message);
-        return res.status(500).json({ success: false, message: "Something Went Wrong Please Try Again", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Something Went Wrong Please Try Again" });
     };
 };

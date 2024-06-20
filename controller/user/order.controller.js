@@ -1,3 +1,4 @@
+const { removeCartItems, updateProductQuantities, expireCoupon } = require('../../helpers/cart_orde');
 const OrderModel = require('../../model/order.model');
 const ProductModel = require('../../model/product.model');
 
@@ -7,7 +8,7 @@ exports.TakeOrder = async (req, res) => {
         const decoded_token = req.decoded_token;
         const userId = decoded_token._id;
         // Extract order data from the request body
-        const { customer, items, shipping, payment, total } = req.body;
+        const { customer, items, shipping, payment, total, couponCode } = req.body;
 
         // Validate that required fields are present
         if (!customer || !items || items.length === 0 || !payment || total === undefined) {
@@ -37,10 +38,18 @@ exports.TakeOrder = async (req, res) => {
 
         // Save the order to the database
         await NewOrder.save();
+        // Call the function to remove items from the cart
+        await removeCartItems(userId, items);
+        // Update the product quantities
+        await updateProductQuantities(items);
+        // Expire the coupon if provided
+        if (couponCode) {
+            await expireCoupon(couponCode);
+        }
 
         // Respond with success message
         return res.status(201).json({ success: true, message: "Order placed successfully", order: NewOrder });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
-    }
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
+    };
 };

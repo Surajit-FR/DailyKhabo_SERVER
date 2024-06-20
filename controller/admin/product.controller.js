@@ -45,7 +45,7 @@ exports.CreateProduct = async (req, res) => {
             productImages: productImages,
             productDescription: productDescription.trim(),
             price: price.trim(),
-            finalPrice: finalPrice,
+            finalPrice: finalPrice.toFixed(2),
             availability: availability.trim(),
             is_coupon_code: is_coupon_code.trim(),
             // discountCode: discountCode.trim(),
@@ -61,7 +61,7 @@ exports.CreateProduct = async (req, res) => {
     } catch (exc) {
         // Delete uploaded file if an error occurred during upload
         deleteUploadedFiles(req);
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -135,7 +135,7 @@ exports.GetAllProduct = async (req, res) => {
 
     } catch (exc) {
         console.log(exc);
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -153,7 +153,7 @@ exports.GetProductDetails = async (req, res) => {
 
         return res.status(200).json({ success: true, message: "Data fetched successfully!", data: productDetails });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     };
 };
 
@@ -221,7 +221,7 @@ exports.UpdateProduct = async (req, res) => {
         if (req.files && req.files.length > 0) {
             deleteUploadedFiles(req);
         }
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -256,6 +256,6 @@ exports.DeleteProduct = async (req, res) => {
         });
 
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };

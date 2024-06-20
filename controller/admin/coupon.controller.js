@@ -28,7 +28,7 @@ exports.CreateCoupon = async (req, res) => {
 
         return res.status(201).json({ success: true, message: `${couponNumber} coupons created successfully!` });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -53,7 +53,9 @@ exports.GetAllCoupons = async (req, res) => {
         const skip = (page - 1) * pageSize;
 
         // Find coupons with the specified query, applying pagination
-        const coupons = await CouponModel.find(query, 'discount_coupon discount_amount expiry_date is_expired')
+        const coupons = await CouponModel
+            .find(query, 'discount_coupon discount_amount expiry_date is_expired')
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(pageSize);
 
@@ -84,7 +86,7 @@ exports.GetAllCoupons = async (req, res) => {
             currentPage: page
         });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
 
@@ -101,7 +103,7 @@ exports.DeleteCoupons = async (req, res) => {
 
         return res.json({ success: true, message: `${deleteResult.deletedCount} coupons deleted successfully.` });
     } catch (exc) {
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     };
 };
 
@@ -131,7 +133,6 @@ exports.DownloadCouponsCsv = async (req, res) => {
         res.attachment('coupons.csv');
         return res.status(200).send(csv);
     } catch (exc) {
-        console.log(exc.message);
-        return res.status(500).json({ success: false, message: "Internal server error", error: exc.message });
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
