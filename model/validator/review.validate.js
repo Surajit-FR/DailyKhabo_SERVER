@@ -5,17 +5,11 @@ module.exports = (ReviewModel) => {
         product: JOI.string().required().messages({
             "string.empty": "A product ID is required!",
         }),
-        full_name: JOI.string().required().messages({
-            "string.empty": "Full name is required!",
-        }),
-        email: JOI.string().email().required().messages({
-            "string.email": "Please provide a valid email address!",
-            "any.required": "Email is required!",
-            "string.empty": "Email cannot be empty!",
-        }),
-        rating: JOI.string().required().messages({
+        full_name: JOI.string().optional(),
+        email: JOI.string().email().optional(),
+        rating: JOI.number().required().messages({
+            "number.base": "Rating must be a number!",
             "any.required": "Rating is required!",
-            "string.empty": "Rating cannot be empty!",
         }),
         message: JOI.string().required().messages({
             "any.required": "Message is required!",

@@ -19,6 +19,7 @@ const Admin_CouponRoutes = require('./routes/admin/coupon.routes');
 const User_ProductCategoryRoutes = require('./routes/user/product_category.routes');
 const User_CartRoutes = require('./routes/user/cart.routes');
 const User_OrderRoutes = require('./routes/user/order.routes');
+const User_ReviewFeedbackRoutes = require('./routes/user/review_feedback.routes');
 
 // TEST
 const Test_Routes = require('./routes/test/test.routes');
@@ -89,6 +90,7 @@ app.use('/user/api', [
     User_ProductCategoryRoutes,
     User_CartRoutes,
     User_OrderRoutes,
+    User_ReviewFeedbackRoutes,
 ]);
 
 /* TEST */

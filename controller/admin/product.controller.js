@@ -134,7 +134,6 @@ exports.GetAllProduct = async (req, res) => {
         });
 
     } catch (exc) {
-        console.log(exc);
         return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     }
 };
