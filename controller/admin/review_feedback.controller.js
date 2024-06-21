@@ -1,4 +1,5 @@
 const ReviewModel = require('../../model/review.model');
+const ProductModel = require('../../model/product.model');
 
 // CreateReview
 exports.CreateReview = async (req, res) => {
@@ -6,7 +7,7 @@ exports.CreateReview = async (req, res) => {
 
     try {
         const decoded_token = req.decoded_token;
-
+        // Create a new review document
         const NewReview = new ReviewModel({
             product: product,
             full_name: decoded_token.full_name,
@@ -15,12 +16,21 @@ exports.CreateReview = async (req, res) => {
             message: message,
         });
 
-        await NewReview.save();
+        // Save the review document
+        const savedReview = await NewReview.save();
+
+        // Add the review to the corresponding product
+        await ProductModel.findByIdAndUpdate(
+            product,
+            { $push: { review: savedReview._id } },
+            { new: true, useFindAndModify: false }
+        );
+
         return res.status(201).json({ success: true, message: "Review added successfully!" });
 
     } catch (exc) {
         return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
-    };
+    }
 };
 
 // GetAllReviews

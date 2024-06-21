@@ -15,6 +15,7 @@ const ProductSchema = new Schema({
     availability: { type: String, required: true },
     productQuantity: { type: Number, required: true },
     category: { type: Schema.Types.ObjectId, ref: 'category' },
+    review: [{ type: Schema.Types.ObjectId, ref: 'review', default: [] }],
     is_banner: { type: Boolean, default: false },
     is_featured: { type: Boolean, default: false },
     is_delete: { type: Boolean, default: false },

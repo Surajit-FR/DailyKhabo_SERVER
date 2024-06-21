@@ -73,7 +73,7 @@ exports.GetAllProduct = async (req, res) => {
         const pageSize = parseInt(req.query.pageSize) || 10;
 
         // Search and filter parameters
-        const searchQuery = req.query.search || '';
+        const searchQuery = req?.query?.searchQuery || '';
         const category = req?.query?.category || '';
 
         const minPrice = parseFloat(req.query.minPrice) || 0;
@@ -86,9 +86,8 @@ exports.GetAllProduct = async (req, res) => {
         if (searchQuery) {
             query.$or = [
                 { productTitle: { $regex: searchQuery, $options: 'i' } },
-                // { productDescription: { $regex: searchQuery, $options: 'i' } }
             ];
-        }
+        };
 
         // Add category filter if category is not empty
         if (category) {
@@ -103,12 +102,16 @@ exports.GetAllProduct = async (req, res) => {
         // Calculate skip value
         const skip = (page - 1) * pageSize;
 
-        // Fetch products with the constructed query and pagination
+        // Fetch products with the constructed query, pagination, and populate reviews
         const all_product_data = await ProductModel
             .find(query)
             .sort({ createdAt: -1 })
             .skip(skip)
-            .limit(pageSize);
+            .limit(pageSize)
+            .populate({
+                'path': 'review',
+                'select': '-is_delete -updatedAt -__v'
+            });
 
         // Count total number of documents matching the query
         const totalCount = await ProductModel.countDocuments(query);
@@ -148,6 +151,10 @@ exports.GetProductDetails = async (req, res) => {
             .populate({
                 'path': 'category',
                 'select': '-createdAt -updatedAt -__v'
+            })
+            .populate({
+                'path': 'review',
+                'select': '-is_delete -updatedAt -__v'
             });
 
         return res.status(200).json({ success: true, message: "Data fetched successfully!", data: productDetails });
