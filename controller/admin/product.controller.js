@@ -1,5 +1,6 @@
 const { deleteUploadedFiles } = require('../../helpers/delete_file');
 const ProductModel = require('../../model/product.model');
+const ReviewModel = require('../../model/review.model');
 const fs = require('fs');
 const path = require('path');
 
@@ -236,32 +237,35 @@ exports.DeleteProduct = async (req, res) => {
     const { product_id } = req.params;
 
     try {
-        // Find the product by ID
-        const product = await ProductModel.findById(product_id);
+        // Find and delete the product, triggering cascade delete for reviews
+        const deletedProduct = await ProductModel.findOneAndDelete({ _id: product_id });
 
-        if (!product) {
+        if (!deletedProduct) {
             return res.status(404).json({ success: false, message: "Product not found" });
-        }
+        };
 
-        // Get the image path
-        const imagePath = product.productImages;
-
-        // Construct the correct absolute path
-        const absoluteImagePath = path.join(__dirname, '..', '..', 'public', 'product_images', 'uploads', path.basename(imagePath));
-
-        // Delete the product from the database
-        await ProductModel.findByIdAndDelete(product_id);
-
-        // Delete the image file from the file system using fs.promises
-        fs.unlink(absoluteImagePath, (err) => {
-            if (err) {
-                console.error("Error deleting image file:", err);
-                return res.status(500).json({ success: false, message: "Product deleted but failed to delete image file" });
-            };
-            return res.status(200).json({ success: true, message: "Product deleted successfully!" });
+        // Delete images associated with the product
+        const imagePaths = deletedProduct.productImages.map(image => {
+            return path.join(__dirname, '..', '..', 'public', 'productImages', path.basename(image));
         });
 
+        // Delete each image file from the file system using fs.promises
+        await Promise.all(imagePaths.map(async (imagePath) => {
+            try {
+                await fs.promises.unlink(imagePath);
+            } catch (err) {
+                console.error("Error deleting image file:", err);
+                throw err;
+            }
+        }));
+
+        // Delete reviews associated with the product
+        await ReviewModel.deleteMany({ _id: { $in: deletedProduct.review } });
+
+        return res.status(200).json({ success: true, message: "Product and associated data deleted successfully!" });
+
     } catch (exc) {
+        console.error("Error deleting product:", exc);
         return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
-    }
+    };
 };

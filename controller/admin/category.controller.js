@@ -112,15 +112,9 @@ exports.DeleteCategory = async (req, res) => {
         );
 
         if (!deletedCategory) {
-            return res.status(404).json({
-                success: false,
-                message: "Category not found"
-            });
+            return res.status(404).json({ success: false, message: "Category not found" });
         }
-        return res.status(200).json({
-            success: true,
-            message: "Category deleted successfully!"
-        });
+        return res.status(200).json({ success: true, message: "Category deleted successfully!" });
 
     } catch (exc) {
         return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
