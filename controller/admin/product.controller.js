@@ -87,8 +87,9 @@ exports.GetAllProduct = async (req, res) => {
         if (searchQuery) {
             query.$or = [
                 { productTitle: { $regex: searchQuery, $options: 'i' } },
+                // { productDescription: { $regex: searchQuery, $options: 'i' } }
             ];
-        };
+        }
 
         // Add category filter if category is not empty
         if (category) {
@@ -103,7 +104,7 @@ exports.GetAllProduct = async (req, res) => {
         // Calculate skip value
         const skip = (page - 1) * pageSize;
 
-        // Fetch products with the constructed query, pagination, and populate reviews
+        // Fetch products with the constructed query and pagination
         const all_product_data = await ProductModel
             .find(query)
             .sort({ createdAt: -1 })

@@ -35,7 +35,7 @@ const OrderSchema = new Schema({
     // Payment information
     payment: { type: String, enum: ['cod', 'stripe'], required: true },
     // Order status
-    status: { type: String, enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'], required: false, default: 'pending' },
+    status: { type: String, enum: ['pending', 'processing', 'shipped', 'delivered', 'canceled'], required: false, default: 'pending' },
     // Order total
     total: { type: Number, required: true },
 }, { timestamps: true });
