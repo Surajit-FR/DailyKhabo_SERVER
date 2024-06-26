@@ -1,4 +1,4 @@
-const { removeCartItems, updateProductQuantities, expireCoupon } = require('../../helpers/cart_orde');
+const { removeCartItems, updateProductQuantities, expireCoupon, findMatchingProductIds } = require('../../helpers/cart_order');
 const OrderModel = require('../../model/order.model');
 const ProductModel = require('../../model/product.model');
 
@@ -61,8 +61,8 @@ exports.GetAllOrder = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const pageSize = parseInt(req.query.pageSize) || 10;
 
-        // Search and filter parameters
-        const searchQuery = req?.query?.searchQuery || '';
+        // Search parameter
+        const searchQuery = req.query.searchQuery || '';
 
         // Date range parameters
         // const startDate = req.query.startDate ? new Date(req.query.startDate) : null;
@@ -71,9 +71,10 @@ exports.GetAllOrder = async (req, res) => {
         // Build query object
         let query = {};
 
-        // Add search condition for productTitle or productID
+        // Add search condition for productTitle
         if (searchQuery) {
-            query['items.product.productTitle'] = { $regex: searchQuery, $options: 'i' };
+            const regex = new RegExp(searchQuery, 'i'); // Create case-insensitive regex
+            query['items.product'] = { $in: await findMatchingProductIds(regex) };
         };
 
         // Add date range filter
@@ -91,7 +92,10 @@ exports.GetAllOrder = async (req, res) => {
             .limit(pageSize)
             .populate({
                 path: 'items.product',
-                model: 'product',
+                select: 'productTitle price productImages'
+            })
+            .populate({
+                path: 'customer',
                 select: '-__v -createdAt -updatedAt'
             });
 
@@ -101,49 +105,37 @@ exports.GetAllOrder = async (req, res) => {
         // Calculate total pages
         const totalPages = Math.ceil(totalCount / pageSize);
 
-        // Initialize a set to track unique product-order combinations
-        const uniqueProductOrders = new Set();
-        let productDetails = [];
-
-        // Iterate through each order
-        orders.forEach(order => {
-            order.items.forEach(item => {
-                const product = item.product;
-                const productOrderKey = `${order._id}-${product._id}`;
-
-                if (!uniqueProductOrders.has(productOrderKey)) {
-                    uniqueProductOrders.add(productOrderKey);
-                    productDetails.push({
-                        _id: product._id,
-                        order_id: order._id,
-                        productTitle: product.productTitle,
-                        price: product.price,
-                        productImages: product.productImages,
-                        totalQuantity: item.quantity,
-                        status: order.status,
-                        createdAt: order.createdAt,
-                        updatedAt: order.updatedAt,
-                        customer: {
-                            email: order.customer.email,
-                            full_name: order.customer.full_name,
-                            phone: order.customer.phone,
-                            address: order.customer.address,
-                            apartment: order.customer.apartment,
-                            country: order.customer.country,
-                            state: order.customer.state,
-                            city: order.customer.city,
-                            postalCode: order.customer.postalCode,
-                        },
-                        shipping: {
-                            type: order.shipping.type,
-                            cost: order.shipping.cost,
-                        },
-                        payment: order.payment,
-                        total: order.total
-                    });
-                }
-            });
-        });
+        // Process orders and extract product details
+        const productDetails = orders.flatMap(order =>
+            order.items.map(item => ({
+                _id: item.product._id,
+                order_id: order._id,
+                productTitle: item.product.productTitle,
+                price: item.product.price,
+                productImages: item.product.productImages,
+                totalQuantity: item.quantity,
+                status: order.status,
+                createdAt: order.createdAt,
+                updatedAt: order.updatedAt,
+                customer: {
+                    email: order.customer.email,
+                    full_name: order.customer.full_name,
+                    phone: order.customer.phone,
+                    address: order.customer.address,
+                    apartment: order.customer.apartment,
+                    country: order.customer.country,
+                    state: order.customer.state,
+                    city: order.customer.city,
+                    postalCode: order.customer.postalCode,
+                },
+                shipping: {
+                    type: order.shipping.type,
+                    cost: order.shipping.cost,
+                },
+                payment: order.payment,
+                total: order.total
+            }))
+        );
 
         // Calculate the range of items displayed on the current page
         const startIndex = skip + 1;
@@ -165,5 +157,5 @@ exports.GetAllOrder = async (req, res) => {
     } catch (exc) {
         console.error(exc.message);
         return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
-    }
+    };
 };

@@ -10,21 +10,18 @@ const OrderController = require('../../controller/user/order.controller');
 
 // Get most sold products
 router.get('/get/most-sold/products', [
-    RequestRate.Limiter,
     VerifyToken,
     Authorize(["all", "read"])
 ], UtilityController.GetMostSoldProducts);
 
 // Get all order
 router.get('/get/all/orders', [
-    RequestRate.Limiter,
     VerifyToken,
     Authorize(["all", "read"])
 ], OrderController.GetAllOrder);
 
 // Get all Customrs
 router.get('/get/all/customers', [
-    RequestRate.Limiter,
     VerifyToken,
     Authorize(["all", "read"])
 ], UtilityController.GetAllCustomer);

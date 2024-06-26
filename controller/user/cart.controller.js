@@ -1,4 +1,4 @@
-const { getAllCartData } = require('../../helpers/cart_orde');
+const { getAllCartData } = require('../../helpers/cart_order');
 const CartModel = require('../../model/cart.model');
 const { removeCartItem } = require('../../services/delete.service');
 

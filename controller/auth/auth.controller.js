@@ -11,7 +11,8 @@ exports.LoginRegular = async (req, res) => {
         // Accessing the user object attached by the middleware 
         const _user = req.user;
 
-        const _DATA = await UserModel.findById(_user._id)
+        const _DATA = await UserModel
+            .findById(_user._id)
             .populate({
                 path: 'role',
                 populate: {
@@ -19,6 +20,10 @@ exports.LoginRegular = async (req, res) => {
                     select: '-_id -description -createdAt -updatedAt -__v'
                 },
                 select: '-_id -createdAt -updatedAt -__v -role.permissions'
+            })
+            .populate({
+                path: 'address',
+                select: '-__v -createdAt -updatedAt'
             })
             .exec();
         const USER_DATA = { ..._DATA._doc, remember_me };

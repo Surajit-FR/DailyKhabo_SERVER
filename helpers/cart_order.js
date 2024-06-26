@@ -62,7 +62,7 @@ exports.getAllCartData = async (userId, couponCode = '') => {
             // Apply the coupon discount
             discountAmount = coupon.discount_amount;
             totalAmount -= discountAmount;
-            
+
         } else {
             throw new Error("Coupon not found or already expired");
         }
@@ -108,4 +108,10 @@ exports.expireCoupon = async (couponCode) => {
         { discount_coupon: couponCode },
         { $set: { is_expired: true } }
     );
+};
+
+// Function to find matching product IDs
+exports.findMatchingProductIds = async (regex) => {
+    const products = await ProductModel.find({ productTitle: regex }).select('_id');
+    return products.map(product => product._id);
 };

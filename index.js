@@ -21,6 +21,7 @@ const User_ProductCategoryRoutes = require('./routes/user/product_category.route
 const User_CartRoutes = require('./routes/user/cart.routes');
 const User_OrderRoutes = require('./routes/user/order.routes');
 const User_ReviewFeedbackRoutes = require('./routes/user/review_feedback.routes');
+const User_Routes = require('./routes/user/user.routes');
 
 // TEST
 const Test_Routes = require('./routes/test/test.routes');
@@ -93,6 +94,7 @@ app.use('/user/api', [
     User_CartRoutes,
     User_OrderRoutes,
     User_ReviewFeedbackRoutes,
+    User_Routes,
 ]);
 
 /* TEST */

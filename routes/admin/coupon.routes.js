@@ -18,7 +18,6 @@ router.post('/create/coupons', [
 
 // Gell all coupons
 router.get('/get/all/coupons', [
-    RequestRate.Limiter,
     VerifyToken,
     Authorize(["all", "read"])
 ], CouponController.GetAllCoupons);
@@ -32,7 +31,6 @@ router.post('/delete/coupons', [
 
 // Delete coupons
 router.get('/coupons/download-csv', [
-    RequestRate.Limiter,
     VerifyToken,
     Authorize(["all", "read"])
 ], CouponController.DownloadCouponsCsv);

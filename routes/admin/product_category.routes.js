@@ -21,7 +21,6 @@ router.post('/add/new/category', [
 
 // Get all category
 router.get('/get/all/category', [
-    RequestRate.Limiter,
     VerifyToken,
     Authorize(["all", "read"])
 ], CategoryController.GetAllCategory);
@@ -54,14 +53,12 @@ router.post('/add/new/product', [
 
 // Get all product
 router.get('/get/all/product', [
-    RequestRate.Limiter,
     VerifyToken,
     Authorize(["all", "read"])
 ], ProductController.GetAllProduct);
 
 // Get product details
 router.get('/get/product/details/:product_id', [
-    RequestRate.Limiter,
     VerifyToken,
     Authorize(["all", "read"])
 ], ProductController.GetProductDetails);

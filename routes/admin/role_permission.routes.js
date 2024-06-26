@@ -17,7 +17,6 @@ router.post('/add/new/permission', [
 
 // Get all permission
 router.get('/get/all/permission', [
-    RequestRate.Limiter,
     VerifyToken,
     Authorize(["all"])
 ], PermissionController.getAllPermissions);
@@ -32,7 +31,6 @@ router.post('/add/new/role', [
 
 // Get all permission
 router.get('/get/all/role', [
-    RequestRate.Limiter,
     VerifyToken,
     Authorize(["all"])
 ], RoleController.getAllRoles);
