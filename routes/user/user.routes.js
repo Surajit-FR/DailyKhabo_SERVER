@@ -19,6 +19,13 @@ router.get('/get/user/all-address', [
     VerifyToken,
 ], UserController.GetAllAddress);
 
+// UpdateUserAddres
+router.post('/update/user/address/:address_id', [
+    RequestRate.Limiter,
+    VerifyToken,
+    ModelAuth(ValidateAddress),
+], UserController.UpdateUserAddress);
+
 // DeleteAddress
 router.delete('/delete/address/:address_id', [
     RequestRate.Limiter,

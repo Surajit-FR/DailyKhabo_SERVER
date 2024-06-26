@@ -22,7 +22,7 @@ module.exports = (AddressModel) => {
             "string.empty": "Postal Code is required!",
             "string.pattern.base": "Postal Code must be between 5 and 10 digits!",
         }),
-    });
+    }).unknown(true);
 
     return AddressSchema.validate(AddressModel);
 };
