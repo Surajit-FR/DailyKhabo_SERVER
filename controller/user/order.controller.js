@@ -1,4 +1,4 @@
-const { removeCartItems, updateProductQuantities, expireCoupon, findMatchingProductIds } = require('../../helpers/cart_order');
+const { removeCartItems, updateProductQuantities, expireCoupon, findMatchingProductIds, generateOrderId } = require('../../helpers/cart_order');
 const OrderModel = require('../../model/order.model');
 const ProductModel = require('../../model/product.model');
 
@@ -8,10 +8,10 @@ exports.TakeOrder = async (req, res) => {
         const decoded_token = req.decoded_token;
         const userId = decoded_token._id;
         // Extract order data from the request body
-        const { customer, items, shipping, payment, total, couponCode } = req.body;
+        const { customer, items, shipping, payment, subtotal, discount, total, couponCode } = req.body;
 
         // Validate that required fields are present
-        if (!customer || !items || items.length === 0 || !payment || total === undefined) {
+        if (!customer || !items || items.length === 0 || !payment || subtotal === undefined || discount === undefined || total === undefined) {
             return res.status(400).json({ success: false, message: "Missing required fields" });
         }
 
@@ -25,14 +25,17 @@ exports.TakeOrder = async (req, res) => {
                 return res.status(400).json({ success: false, message: `Product with ID ${item.product} does not exist` });
             }
         }
-
+        const orderID = generateOrderId();
         // Create a new order instance
         const NewOrder = new OrderModel({
             user: userId,
+            orderId: orderID,
             customer,
             items,
             shipping,
             payment,
+            subtotal,
+            discount,
             total,
         });
 
@@ -73,9 +76,11 @@ exports.GetAllOrder = async (req, res) => {
 
         // Add search condition for productTitle
         if (searchQuery) {
-            const regex = new RegExp(searchQuery, 'i'); // Create case-insensitive regex
-            query['items.product'] = { $in: await findMatchingProductIds(regex) };
-        };
+            query.$or = [
+                { orderId: { $regex: searchQuery, $options: 'i' } },
+                // { status: { $regex: searchQuery, $options: 'i' } }
+            ];
+        }
 
         // Add date range filter
         // if (startDate && endDate) {
@@ -105,38 +110,6 @@ exports.GetAllOrder = async (req, res) => {
         // Calculate total pages
         const totalPages = Math.ceil(totalCount / pageSize);
 
-        // Process orders and extract product details
-        const productDetails = orders.flatMap(order =>
-            order.items.map(item => ({
-                _id: item.product._id,
-                order_id: order._id,
-                productTitle: item.product.productTitle,
-                price: item.product.price,
-                productImages: item.product.productImages,
-                totalQuantity: item.quantity,
-                status: order.status,
-                createdAt: order.createdAt,
-                updatedAt: order.updatedAt,
-                customer: {
-                    email: order.customer.email,
-                    full_name: order.customer.full_name,
-                    phone: order.customer.phone,
-                    address: order.customer.address,
-                    apartment: order.customer.apartment,
-                    country: order.customer.country,
-                    state: order.customer.state,
-                    city: order.customer.city,
-                    postalCode: order.customer.postalCode,
-                },
-                shipping: {
-                    type: order.shipping.type,
-                    cost: order.shipping.cost,
-                },
-                payment: order.payment,
-                total: order.total
-            }))
-        );
-
         // Calculate the range of items displayed on the current page
         const startIndex = skip + 1;
         const endIndex = Math.min(skip + pageSize, totalCount);
@@ -145,7 +118,7 @@ exports.GetAllOrder = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "Data fetched successfully",
-            data: productDetails,
+            data: orders,
             totalPages: totalPages,
             currentPage: page,
             totalItems: totalCount,

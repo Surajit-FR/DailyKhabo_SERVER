@@ -75,11 +75,19 @@ module.exports = (OrderModel) => {
         status: JOI.string().valid('pending', 'processing', 'shipped', 'delivered', 'cancelled').default('pending').optional().messages({
             "any.only": "Order status must be one of 'pending', 'processing', 'shipped', 'delivered', 'cancelled'!",
         }),
-        // Order total
+        // Order totals
+        subtotal: JOI.number().positive().required().messages({
+            "number.base": "Subtotal must be a number!",
+            "number.positive": "Subtotal must be a positive number!",
+            "any.required": "Subtotal is required!"
+        }),
+        discount: JOI.number().default(0).messages({
+            "number.base": "Discount must be a number!",
+        }),
         total: JOI.number().positive().required().messages({
             "number.base": "Total must be a number!",
             "number.positive": "Total must be a positive number!",
-            "any.required": "Order total is required!"
+            "any.required": "Total is required!"
         }),
         // Optional timestamps (createdAt and updatedAt)
         createdAt: JOI.date().optional(),

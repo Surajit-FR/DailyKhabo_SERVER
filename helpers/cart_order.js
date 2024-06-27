@@ -1,6 +1,7 @@
 const CartModel = require('../model/cart.model');
 const CouponModel = require('../model/coupon.model');
 const ProductModel = require('../model/product.model');
+const { v4: uuidv4 } = require('uuid');
 
 // getAllCartData function for multiple use
 exports.getAllCartData = async (userId, couponCode = '') => {
@@ -12,13 +13,13 @@ exports.getAllCartData = async (userId, couponCode = '') => {
         });
 
     // Prepare the response data
-    let totalAmount = 0;
+    let subTotalAmount = 0;
     const detailedCartData = cart_data.map(item => {
         const product = item.product;
         const quantity = Number(item.cart_quantity);
         const finalPrice = Number(product.finalPrice);
         const itemTotal = quantity * finalPrice;
-        totalAmount += itemTotal;
+        subTotalAmount += itemTotal;
 
         return {
             _id: item._id,
@@ -36,16 +37,6 @@ exports.getAllCartData = async (userId, couponCode = '') => {
         };
     });
 
-    // Fetching shipping charge based on totalAmount
-    let shippingCharge = 0;
-    const freeShippingThreshold = parseFloat(process.env.FREE_SHIPPING_THRESHOLD) || 0;
-
-    if (totalAmount > freeShippingThreshold) {
-        shippingCharge = 0; // Free shipping
-    } else {
-        shippingCharge = parseFloat(process.env.SHIPPING_CHARGE) || 0;
-    };
-
     // Initialize discountAmount
     let discountAmount = 0;
 
@@ -61,22 +52,32 @@ exports.getAllCartData = async (userId, couponCode = '') => {
             }
             // Apply the coupon discount
             discountAmount = coupon.discount_amount;
-            totalAmount -= discountAmount;
 
         } else {
             throw new Error("Coupon not found or already expired");
         }
     };
 
-    // Calculate total amount including shipping charge
-    let totalAmountWithShipping = totalAmount + shippingCharge;
+    // Calculate shipping charge based on subTotalAmount
+    let shippingCharge = 0;
+    const freeShippingThreshold = parseFloat(process.env.FREE_SHIPPING_THRESHOLD) || 0;
 
+    if (subTotalAmount > freeShippingThreshold) {
+        shippingCharge = 0; // Free shipping
+    } else {
+        shippingCharge = parseFloat(process.env.SHIPPING_CHARGE) || 0;
+    };
+
+    // Calculate total amount including shipping charge and discount
+    let totalAmount = subTotalAmount - discountAmount + shippingCharge;
+
+    // Prepare the response object for UI
     return {
         data: detailedCartData,
-        totalAmount: detailedCartData.length > 0 ? Number(totalAmount.toFixed(2)) : 0,
-        shippingCharge: detailedCartData.length > 0 ? Number(shippingCharge.toFixed(2)) : 0,
+        subTotalAmount: detailedCartData.length > 0 ? Number(subTotalAmount.toFixed(2)) : 0,
         discountAmount: detailedCartData.length > 0 ? Number(discountAmount.toFixed(2)) : 0,
-        totalAmountWithShipping: detailedCartData.length > 0 ? Number(totalAmountWithShipping.toFixed(2)) : 0,
+        shippingCharge: detailedCartData.length > 0 ? Number(shippingCharge.toFixed(2)) : 0,
+        totalAmountWithShipping: detailedCartData.length > 0 ? Number(totalAmount.toFixed(2)) : 0,
     };
 };
 
@@ -115,3 +116,10 @@ exports.findMatchingProductIds = async (regex) => {
     const products = await ProductModel.find({ productTitle: regex }).select('_id');
     return products.map(product => product._id);
 };
+
+// generateOrderId function
+exports.generateOrderId = () => {
+    const uuid = uuidv4();
+    const shortUuid = (uuid.replace(/-/g, '').substring(0, 16)).toUpperCase();
+    return shortUuid;
+}

@@ -4,22 +4,18 @@ const Schema = mongoose.Schema;
 
 const OrderSchema = new Schema({
     user: { type: Schema.Types.ObjectId, ref: 'user', required: true, index: true },
-    // Customer information
+    orderId: { type: String, required: true },
     customer: {
         email: { type: String, required: true },
         full_name: { type: String, required: true },
         phone: { type: String, required: true },
         address: { type: String, required: true },
-
-        // Add apartment, suite etc. if needed
         apartment: { type: String, required: false },
-        // Assuming India is the default country
         country: { type: String, default: 'India' },
         state: { type: String, required: true },
         city: { type: String, required: true },
         postalCode: { type: String, required: true },
     },
-    // Items ordered
     items: [
         {
             cart: { type: Schema.Types.ObjectId, ref: 'cart', required: true },
@@ -27,16 +23,14 @@ const OrderSchema = new Schema({
             quantity: { type: Number, required: true },
         },
     ],
-    // Shipping information
     shipping: {
         type: { type: String, enum: ['free', 'paid'], default: 'free' },
         cost: { type: Number, default: 0 },
     },
-    // Payment information
     payment: { type: String, enum: ['cod', 'stripe'], required: true },
-    // Order status
     status: { type: String, enum: ['pending', 'processing', 'shipped', 'delivered', 'canceled'], required: false, default: 'pending' },
-    // Order total
+    subtotal: { type: Number, required: true },
+    discount: { type: Number, default: 0 },
     total: { type: Number, required: true },
 }, { timestamps: true });
 

@@ -26,6 +26,18 @@ router.get('/get/all/customers', [
     Authorize(["all", "read"])
 ], UtilityController.GetAllCustomer);
 
+// Get all Customrs
+router.get('/get/invoice/details/:order_id', [
+    VerifyToken,
+    Authorize(["all", "read"])
+], UtilityController.GetInvoiceDetails);
+
+// Generate invoice-pdf
+router.post('/generate/invoice-pdf', [
+    VerifyToken,
+    Authorize(["all", "read"])
+], UtilityController.GenerateInvoicePdf);
+
 // router.get('/ip-stats', [trackIP], (req, res) => {
 //     res.json(req.ipCounts);
 // });

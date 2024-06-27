@@ -1,5 +1,8 @@
+const { generateHTMLTemplate } = require("../../helpers/generatePdf");
 const OrderModel = require("../../model/order.model");
 const UserModel = require("../../model/user.model");
+const { JSDOM } = require('jsdom');
+const jsPDF = require('jspdf');
 
 // GetMostSoldProducts
 exports.GetMostSoldProducts = async (req, res) => {
@@ -116,4 +119,77 @@ exports.GetAllCustomer = async (req, res) => {
     } catch (exc) {
         return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     };
+};
+
+// GetInvoiceDetails
+exports.GetInvoiceDetails = async (req, res) => {
+    const { order_id } = req.params;
+    try {
+        // Fetch orders with the constructed query and pagination
+        const orders = await OrderModel.findOne({ _id: order_id })
+            .populate({
+                path: 'items.product',
+                select: '-productDescription -productKeyPoints -availability -productQuantity -is_banner -is_featured -is_delete -review -createdAt -updatedAt -__v',
+                populate: {
+                    path: 'category',
+                    select: '-category_desc -is_delete -categoryImage -categoryID -__v -createdAt -updatedAt'
+                }
+            })
+            .populate({
+                path: 'customer',
+                select: '-__v -createdAt -updatedAt'
+            });
+
+        // Respond with success message and product details
+        return res.status(200).json({ success: true, message: "Data fetched successfully", data: orders });
+    } catch (exc) {
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
+    };
+};
+
+// GenerateInvoicePdf
+exports.GenerateInvoicePdf = async (req, res) => {
+    const { invoiceDetails } = req.body;
+
+    try {
+        // Generate HTML content
+        const htmlContent = generateHTMLTemplate(invoiceDetails);
+
+        // Create a virtual DOM with JSDOM
+        const dom = new JSDOM(htmlContent, { runScripts: 'outside-only' });
+
+        // Initialize jsPDF for PDF generation
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'px',
+            format: 'a4'
+        });
+
+        const canvas = doc.canvas;
+        canvas.height = dom.window.document.documentElement.scrollHeight;
+        canvas.width = dom.window.document.documentElement.scrollWidth;
+
+        const options = {
+            pagesplit: true,
+            background: '#fff'
+        };
+
+        // Convert HTML to PDF
+        await doc.html(dom.window.document.documentElement.outerHTML, options);
+
+        // Generate blob for download
+        const pdfBlob = doc.output('blob');
+
+        // Set headers for download
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename="invoice.pdf"');
+
+        // Send the blob as response
+        pdfBlob.then(blob => {
+            res.send(blob);
+        });
+    } catch (exc) {
+        console.error('Error generating PDF:', exc);
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
+    }
 };
