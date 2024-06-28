@@ -149,39 +149,25 @@ exports.GetInvoiceDetails = async (req, res) => {
 // GenerateInvoicePdf
 exports.GenerateInvoicePdf = async (req, res) => {
     const { invoiceDetails } = req.body;
-
     try {
-        // Generate HTML content
         const htmlContent = generateHTMLTemplate(invoiceDetails);
-
-        // Launch Puppeteer browser
         const browser = await puppeteer.launch({
-            headless: true, // Launch browser in headless mode
-            args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required for running in some environments
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
         });
         const page = await browser.newPage();
-
-        // Set HTML content
         await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-
-        // Generate PDF
         const pdfBuffer = await page.pdf({
             format: 'A4',
             printBackground: true,
-            margin: { top: '0', right: '0', bottom: '0', left: '0' }
+            margin: { top: '0', right: '0', bottom: '0', left: '0' },
         });
-
-        // Close browser
         await browser.close();
-
-        // Set headers for download
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename="invoice.pdf"');
-
-        // Send the buffer as response
         res.send(pdfBuffer);
     } catch (exc) {
         console.error('Error generating PDF:', exc);
-        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
-    };
+        res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
+    }
 };
