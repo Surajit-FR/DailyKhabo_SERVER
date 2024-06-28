@@ -1,8 +1,7 @@
 const { generateHTMLTemplate } = require("../../helpers/generatePdf");
 const OrderModel = require("../../model/order.model");
 const UserModel = require("../../model/user.model");
-const { JSDOM } = require('jsdom');
-const jsPDF = require('jspdf');
+const puppeteer = require('puppeteer');
 
 // GetMostSoldProducts
 exports.GetMostSoldProducts = async (req, res) => {
@@ -155,41 +154,34 @@ exports.GenerateInvoicePdf = async (req, res) => {
         // Generate HTML content
         const htmlContent = generateHTMLTemplate(invoiceDetails);
 
-        // Create a virtual DOM with JSDOM
-        const dom = new JSDOM(htmlContent, { runScripts: 'outside-only' });
+        // Launch Puppeteer browser
+        const browser = await puppeteer.launch({
+            headless: true, // Launch browser in headless mode
+            args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required for running in some environments
+        });
+        const page = await browser.newPage();
 
-        // Initialize jsPDF for PDF generation
-        const doc = new jsPDF({
-            orientation: 'portrait',
-            unit: 'px',
-            format: 'a4'
+        // Set HTML content
+        await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
+        // Generate PDF
+        const pdfBuffer = await page.pdf({
+            format: 'A4',
+            printBackground: true,
+            margin: { top: '0', right: '0', bottom: '0', left: '0' }
         });
 
-        const canvas = doc.canvas;
-        canvas.height = dom.window.document.documentElement.scrollHeight;
-        canvas.width = dom.window.document.documentElement.scrollWidth;
-
-        const options = {
-            pagesplit: true,
-            background: '#fff'
-        };
-
-        // Convert HTML to PDF
-        await doc.html(dom.window.document.documentElement.outerHTML, options);
-
-        // Generate blob for download
-        const pdfBlob = doc.output('blob');
+        // Close browser
+        await browser.close();
 
         // Set headers for download
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename="invoice.pdf"');
 
-        // Send the blob as response
-        pdfBlob.then(blob => {
-            res.send(blob);
-        });
+        // Send the buffer as response
+        res.send(pdfBuffer);
     } catch (exc) {
         console.error('Error generating PDF:', exc);
         return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
-    }
+    };
 };
