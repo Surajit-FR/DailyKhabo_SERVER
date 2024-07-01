@@ -2,6 +2,9 @@ const { generateHTMLTemplate } = require("../../helpers/generatePdf");
 const OrderModel = require("../../model/order.model");
 const UserModel = require("../../model/user.model");
 const puppeteer = require('puppeteer');
+const fs = require('fs');
+const path = require('path');
+
 
 // GetMostSoldProducts
 exports.GetMostSoldProducts = async (req, res) => {
@@ -149,23 +152,49 @@ exports.GetInvoiceDetails = async (req, res) => {
 // GenerateInvoicePdf
 exports.GenerateInvoicePdf = async (req, res) => {
     const { invoiceDetails } = req.body;
+
     try {
+        // Generate custom HTML content
         const htmlContent = generateHTMLTemplate(invoiceDetails);
+
+        // Launch Puppeteer
         const browser = await puppeteer.launch({
             headless: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox'],
         });
+
+        // Open a new page
         const page = await browser.newPage();
+
+        // Set content on the page
         await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
+        // Generate PDF buffer
         const pdfBuffer = await page.pdf({
             format: 'A4',
             printBackground: true,
             margin: { top: '0', right: '0', bottom: '0', left: '0' },
         });
+
+        // Close the browser
         await browser.close();
+
+        // Save the PDF temporarily on the server
+        const pdfPath = path.join(__dirname, 'temp', 'invoice.pdf');
+        fs.writeFileSync(pdfPath, pdfBuffer);
+
+        // Set response headers for PDF download
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename="invoice.pdf"');
-        res.send(pdfBuffer);
+
+        // Convert the saved PDF file to a blob
+        const pdfBlob = fs.readFileSync(pdfPath);
+
+        // Send the PDF blob as response
+        res.send(pdfBlob);
+
+        // Delete the temporary PDF file from the server
+        fs.unlinkSync(pdfPath);
     } catch (exc) {
         console.error('Error generating PDF:', exc);
         res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
