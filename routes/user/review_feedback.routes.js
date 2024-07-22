@@ -5,6 +5,7 @@ const ReviewFeedbackController = require('../../controller/admin/review_feedback
 const { VerifyToken } = require('../../middleware/auth/auth_user');
 const ModelAuth = require('../../middleware/auth/model_auth');
 const ValidateReview = require('../../model/validator/review.validate');
+const ValidateContactUs = require('../../model/validator/contact.validate');
 
 
 // create review
@@ -17,5 +18,11 @@ router.post('/create/review', [
 // Get all review
 router.get('/get/all/reviews', [
 ], ReviewFeedbackController.GetAllReviews);
+
+// Contact us
+router.post('/contact/us', [
+    RequestRate.Limiter,
+    ModelAuth(ValidateContactUs),
+], ReviewFeedbackController.ContactUs);
 
 module.exports = router;
