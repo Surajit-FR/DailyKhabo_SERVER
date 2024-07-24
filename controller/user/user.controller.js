@@ -2,6 +2,22 @@ const UserModel = require('../../model/user.model');
 const AddressModel = require('../../model/address.model');
 const { getUserById, validateAddressOwnership, updatePrimaryAddresses, createUserToken } = require('../../helpers/address_helpers');
 
+// GetUserDetails
+exports.GetUserDetails = async (req, res) => {
+    try {
+        const decoded_token = req.decoded_token;
+        const userId = decoded_token._id;
+
+        const user = await getUserById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        };
+        return res.status(200).json({ success: true, message: "Address deleted successfully!", data: user });
+    } catch (exc) {
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
+    }
+};
+
 // AddUserAddress
 exports.AddUserAddress = async (req, res) => {
     const { address, apartment, country, state, city, postalCode } = req.body;

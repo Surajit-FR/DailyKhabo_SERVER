@@ -8,6 +8,11 @@ const ModelAuth = require('../../middleware/auth/model_auth');
 const ValidateAddress = require('../../model/validator/address.validate');
 
 
+// GetUserDetails
+router.get('/get/user/details', [
+    VerifyToken,
+], UserController.GetUserDetails);
+
 // AddUserAddress
 router.post('/add/user/address', [
     RequestRate.Limiter,
