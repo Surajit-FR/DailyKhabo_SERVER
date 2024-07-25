@@ -5,6 +5,7 @@ const AddressSchema = new Schema({
     user: { type: Schema.Types.ObjectId, ref: 'user' },
     address: { type: String, required: true },
     apartment: { type: String, required: false },
+    phone: { type: String, required: true },
     country: { type: String, default: 'India' },
     state: { type: String, required: true },
     city: { type: String, required: true },

@@ -5,6 +5,12 @@ module.exports = (AddressModel) => {
         address: JOI.string().required().messages({
             "string.empty": "Address is required!",
         }),
+        phone: JOI.string().required().min(4).max(10).pattern(/^[0-9]/).messages({
+            "string.empty": "User type is missing !!",
+            "string.min": "Phone number length should be more than 4 digits",
+            "string.max": "Phone number length should be 10 digits long",
+            "string.pattern.base": "Only numbers are allowed !!",
+        }),
         apartment: JOI.string().allow("").optional().messages({
             "string.base": "Apartment must be a string!",
         }),

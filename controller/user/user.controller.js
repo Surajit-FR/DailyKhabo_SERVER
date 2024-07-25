@@ -20,7 +20,7 @@ exports.GetUserDetails = async (req, res) => {
 
 // AddUserAddress
 exports.AddUserAddress = async (req, res) => {
-    const { address, apartment, country, state, city, postalCode } = req.body;
+    const { address, apartment, phone, country, state, city, postalCode } = req.body;
 
     try {
         const decoded_token = req.decoded_token;
@@ -34,6 +34,7 @@ exports.AddUserAddress = async (req, res) => {
             user: userId,
             address,
             apartment,
+            phone,
             country,
             state,
             city,
@@ -42,7 +43,7 @@ exports.AddUserAddress = async (req, res) => {
         });
 
         const savedAddress = await newAddress.save();
-        const updatedUser = await UserModel.findByIdAndUpdate(
+        await UserModel.findByIdAndUpdate(
             userId,
             { $push: { address: savedAddress._id } },
             { new: true }
@@ -74,9 +75,28 @@ exports.GetAllAddress = async (req, res) => {
     }
 };
 
+// GetAddress
+exports.GetAddress = async (req, res) => {
+    const { address_id } = req.params;
+
+    try {
+        const decoded_token = req.decoded_token;
+        const userId = decoded_token._id;
+
+        const addressData = await AddressModel.findOne({ _id: address_id, user: userId });
+        if (!addressData) {
+            return res.status(404).json({ success: false, message: "Address not found" });
+        }
+
+        return res.status(200).json({ success: true, message: "Data fetched successfully!", data: addressData });
+    } catch (exc) {
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
+    }
+};
+
 // UpdateUserAddress
 exports.UpdateUserAddress = async (req, res) => {
-    const { address, apartment, country, state, city, postalCode, primary } = req.body;
+    const { address, apartment, phone, country, state, city, postalCode, primary } = req.body;
     const { address_id } = req.params;
 
     try {
@@ -90,6 +110,7 @@ exports.UpdateUserAddress = async (req, res) => {
 
         addressToUpdate.address = address;
         addressToUpdate.apartment = apartment;
+        addressToUpdate.phone = phone;
         addressToUpdate.country = country;
         addressToUpdate.state = state;
         addressToUpdate.city = city;

@@ -25,6 +25,11 @@ router.get('/get/user/all-address', [
     VerifyToken,
 ], UserController.GetAllAddress);
 
+// GetAddress
+router.get('/get/address/:address_id', [
+    VerifyToken,
+], UserController.GetAddress);
+
 // UpdateUserAddres
 router.post('/update/user/address/:address_id', [
     RequestRate.Limiter,

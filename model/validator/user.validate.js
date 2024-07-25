@@ -21,12 +21,6 @@ module.exports = (UserModel) => {
             "string.max": "Password should be maximum 16 characters long !!",
             "string.pattern.base": "Password must contain at least one uppercase letter, one lowercase letter, one number & one special character !!",
         }),
-        phone: JOI.string().min(4).max(10).pattern(/^[0-9]/).messages({
-            "string.empty": "User type is missing !!",
-            "string.min": "Phone number length should be more than 4 digits",
-            "string.max": "Phone number length should be 10 digits long",
-            "string.pattern.base": "Only numbers are allowed !!",
-        }),
         role: JOI.string().required().messages({
             "string.empty": "Role is required !!",
         }),
