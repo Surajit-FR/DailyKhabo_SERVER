@@ -94,6 +94,44 @@ exports.GetAddress = async (req, res) => {
     }
 };
 
+// UpdateUserData
+exports.UpdateUserData = async (req, res) => {
+    const { full_name, email } = req.body;
+    try {
+        const decoded_token = req.decoded_token;
+        const userId = decoded_token._id;
+
+        const updateData = {};
+        if (full_name) updateData.full_name = full_name;
+        if (email) updateData.email = email;
+
+        const updatedUser = await UserModel.findByIdAndUpdate(
+            { _id: userId },
+            { $set: updateData },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        };
+
+        const tokenData = createUserToken(updatedUser, decoded_token.remember_me);
+        return res.status(200).json({
+            success: true,
+            message: 'User data updated successfully',
+            data: updatedUser,
+            token: tokenData,
+        });
+
+    } catch (exc) {
+        return res.status(500).json({
+            success: false,
+            message: exc.message,
+            error: "Internal server error",
+        });
+    }
+};
+
 // UpdateUserAddress
 exports.UpdateUserAddress = async (req, res) => {
     const { address, apartment, phone, country, state, city, postalCode, primary } = req.body;

@@ -30,7 +30,13 @@ router.get('/get/address/:address_id', [
     VerifyToken,
 ], UserController.GetAddress);
 
-// UpdateUserAddres
+// UpdateUserData
+router.post('/update/user/data', [
+    RequestRate.Limiter,
+    VerifyToken,
+], UserController.UpdateUserData);
+
+// UpdateUserAddress
 router.post('/update/user/address/:address_id', [
     RequestRate.Limiter,
     VerifyToken,
