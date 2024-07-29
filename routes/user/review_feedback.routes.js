@@ -22,6 +22,7 @@ router.get('/get/all/reviews', [
 // Feedback
 router.post('/feedback', [
     RequestRate.Limiter,
+    VerifyToken,
     ModelAuth(ValidateFeedback),
 ], ReviewFeedbackController.Feedback);
 
