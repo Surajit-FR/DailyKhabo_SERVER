@@ -1,6 +1,7 @@
 const ReviewModel = require('../../model/review.model');
 const ProductModel = require('../../model/product.model');
 const FeedbackModel = require('../../model/feedback.model');
+const { default: mongoose } = require('mongoose');
 
 // CreateReview
 exports.CreateReview = async (req, res) => {
@@ -71,6 +72,49 @@ exports.GetAllFeedbacks = async (req, res) => {
     try {
         const testimonials_data = await FeedbackModel.find().sort({ createdAt: -1 });
         return res.status(200).json({ success: true, message: "Reviews fetched successfully!", data: testimonials_data });
+    } catch (exc) {
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
+    };
+};
+
+// MarkFeedback
+exports.MarkFeedback = async (req, res) => {
+    const { feedback_id } = req.params;
+    try {
+        // Fetch the current feedback document
+        const feedback = await FeedbackModel.findById(feedback_id);
+
+        if (!feedback) {
+            return res.status(404).json({ success: false, message: "Feedback not found" });
+        }
+
+        // Toggle the is_highlighted field
+        const newIsHighlighted = !feedback.is_highlighted;
+
+        // Update the feedback document
+        await FeedbackModel.findByIdAndUpdate(
+            feedback_id,
+            { $set: { is_highlighted: newIsHighlighted } },
+            { new: true }
+        );
+
+        return res.status(200).json({ success: true, message: "Feedback updated successfully!" });
+    } catch (exc) {
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
+    };
+};
+
+// DeleteFeedbacks
+exports.DeleteFeedbacks = async (req, res) => {
+    const selectedIDs = req.body;
+    try {
+        // Validate selectedIDs to ensure they are valid MongoDB ObjectId strings
+        const validIDs = selectedIDs.filter(id => mongoose.Types.ObjectId.isValid(id));
+
+        // Delete coupons based on the valid IDs
+        const deleteResult = await FeedbackModel.deleteMany({ _id: { $in: validIDs } });
+
+        return res.json({ success: true, message: `${deleteResult.deletedCount} feedbacks deleted successfully.` });
     } catch (exc) {
         return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     };

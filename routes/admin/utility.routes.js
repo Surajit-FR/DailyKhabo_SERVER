@@ -4,6 +4,7 @@ const RequestRate = require('../../helpers/request_limiter');
 const { VerifyToken, Authorize } = require('../../middleware/auth/auth_user');
 const UtilityController = require('../../controller/admin/utility.controller');
 const OrderController = require('../../controller/user/order.controller');
+const ReviewFeedbackController = require('../../controller/admin/review_feedback.controller');
 // const { trackIP } = require('../../helpers/ip_tracker');
 
 /**************************************************** UTILITY ROUTES ****************************************************/
@@ -37,6 +38,25 @@ router.post('/generate/invoice-pdf', [
     VerifyToken,
     Authorize(["all", "read"])
 ], UtilityController.GenerateInvoicePdf);
+
+// Get all feedbacks
+router.get('/get/testimonials', [
+    VerifyToken,
+    Authorize(["all", "read"]),
+], ReviewFeedbackController.GetAllFeedbacks);
+
+// Mark Feedback
+router.post('/mark/feedback/:feedback_id', [
+    VerifyToken,
+    Authorize(["all"]),
+], ReviewFeedbackController.MarkFeedback);
+
+// Delete Feedbacks
+router.post('/delete/feedbacks', [
+    RequestRate.Limiter,
+    VerifyToken,
+    Authorize(["all", "delete"])
+], ReviewFeedbackController.DeleteFeedbacks);
 
 // router.get('/ip-stats', [trackIP], (req, res) => {
 //     res.json(req.ipCounts);
