@@ -8,7 +8,7 @@ const { ConnectToDataBase } = require('./config/database_config');
 const http = require('http');
 const cronJob = require('./jobs/cronJob');
 
-const AuthRoutes = require('./routes/auth.routes');
+const AuthRoutes = require('./routes/common/auth.routes');
 
 // ADMIN
 const Role_PermissionRoutes = require('./routes/admin/role_permission.routes');

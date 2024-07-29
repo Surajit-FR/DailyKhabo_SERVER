@@ -1,7 +1,7 @@
 const JOI = require('joi');
 
-module.exports = (ContactUsModel) => {
-    const ContactUsSchema = JOI.object({
+module.exports = (FeedbackModel) => {
+    const FeedbackSchema = JOI.object({
         full_name: JOI.string().min(3).max(60).required().pattern(/^[a-zA-Z ]+$/).messages({
             "string.empty": "Full name is required!",
             "string.min": "Minimum length should be 3",
@@ -15,23 +15,15 @@ module.exports = (ContactUsModel) => {
             "string.email": "Invalid email format !!",
             "string.pattern.base": "Invalid email format !!",
         }),
-        phone: JOI.string().min(4).max(10).pattern(/^[0-9]/).messages({
-            "string.empty": "User type is missing !!",
-            "string.min": "Phone number length should be more than 4 digits",
-            "string.max": "Phone number length should be 10 digits long",
-            "string.pattern.base": "Only numbers are allowed !!",
-        }),
-        subject: JOI.string().min(3).max(100).required().messages({
-            "string.empty": "Subject is required!",
-            "string.min": "Minimum length should be 3",
-            "string.max": "Maximum length should be 100",
-        }),
+        phone: JOI.allow("").optional(),
+        designation: JOI.allow("").optional(),
         message: JOI.string().min(10).max(500).required().messages({
             "string.empty": "Message is required!",
             "string.min": "Minimum length should be 10",
             "string.max": "Maximum length should be 500",
         }),
+        is_highlighted: JOI.boolean().default(false),
     });
 
-    return ContactUsSchema.validate(ContactUsModel);
+    return FeedbackSchema.validate(FeedbackModel);
 };

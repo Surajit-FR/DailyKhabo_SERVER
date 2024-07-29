@@ -1,6 +1,6 @@
 const ReviewModel = require('../../model/review.model');
 const ProductModel = require('../../model/product.model');
-const ContactUsModel = require('../../model/contact.model');
+const FeedbackModel = require('../../model/feedback.model');
 
 // CreateReview
 exports.CreateReview = async (req, res) => {
@@ -46,21 +46,31 @@ exports.GetAllReviews = async (req, res) => {
     };
 };
 
-// ContactUs
-exports.ContactUs = async (req, res) => {
-    const { full_name, email, phone, subject, message } = req.body;
+// Feedback
+exports.Feedback = async (req, res) => {
+    const { full_name, email, phone, designation, message } = req.body;
     try {
         // Create a new review document
-        const newContact = new ContactUsModel({
+        const newFeedback = new FeedbackModel({
             full_name: full_name,
             email: email,
             phone: phone,
-            subject: subject,
+            designation: designation,
             message: message,
         });
-        await newContact.save();
+        await newFeedback.save();
 
         return res.status(201).json({ success: true, message: "Feedback submitted successfully!" });
+    } catch (exc) {
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
+    };
+};
+
+// GetAllFeedbacks
+exports.GetAllFeedbacks = async (req, res) => {
+    try {
+        const testimonials_data = await FeedbackModel.find().sort({ createdAt: -1 });
+        return res.status(200).json({ success: true, message: "Reviews fetched successfully!", data: testimonials_data });
     } catch (exc) {
         return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
     };
