@@ -133,7 +133,7 @@ app.use((req, res, next) => {
     });
 });
 
-const PORT = process.env.PORT || 4006;
+const PORT = process.env.PORT || 4005;
 const HOST = `${process.env.HOST}:${PORT}` || `http://localhost:${PORT}`;
 
 server.listen(PORT, () => {
