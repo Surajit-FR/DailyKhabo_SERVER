@@ -3,7 +3,6 @@ const router = express.Router();
 const RequestRate = require('../../helpers/request_limiter');
 const { VerifyToken, Authorize } = require('../../middleware/auth/auth_user');
 const UtilityController = require('../../controller/admin/utility.controller');
-const OrderController = require('../../controller/user/order.controller');
 const ReviewFeedbackController = require('../../controller/admin/review_feedback.controller');
 // const { trackIP } = require('../../helpers/ip_tracker');
 
@@ -15,12 +14,6 @@ router.get('/get/most-sold/products', [
     Authorize(["all", "read"])
 ], UtilityController.GetMostSoldProducts);
 
-// Get all order
-router.get('/get/all/orders', [
-    VerifyToken,
-    Authorize(["all", "read"])
-], OrderController.GetAllOrder);
-
 // Get all Customrs
 router.get('/get/all/customers', [
     VerifyToken,
@@ -30,13 +23,13 @@ router.get('/get/all/customers', [
 // Get all Customrs
 router.get('/get/invoice/details/:order_id', [
     VerifyToken,
-    Authorize(["all", "read"])
+    // Authorize(["all", "read"])
 ], UtilityController.GetInvoiceDetails);
 
 // Generate invoice-pdf
 router.post('/generate/invoice-pdf', [
     VerifyToken,
-    Authorize(["all", "read"])
+    // Authorize(["all", "read"])
 ], UtilityController.GenerateInvoicePdf);
 
 // Get all feedbacks

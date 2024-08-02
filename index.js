@@ -15,6 +15,7 @@ const Role_PermissionRoutes = require('./routes/admin/role_permission.routes');
 const Admin_ProductCategoryRoutes = require('./routes/admin/product_category.routes');
 const Admin_CouponRoutes = require('./routes/admin/coupon.routes');
 const Admin_UtilityRoutes = require('./routes/admin/utility.routes');
+const Admin_OrderRoutes = require('./routes/admin/admin_order.routes');
 
 // USER
 const User_ProductCategoryRoutes = require('./routes/user/product_category.routes');
@@ -85,6 +86,7 @@ app.use('/admin/api', [
     Admin_ProductCategoryRoutes,
     Admin_CouponRoutes,
     Admin_UtilityRoutes,
+    Admin_OrderRoutes
 ]);
 
 /* USER */

@@ -1,4 +1,4 @@
-const { removeCartItems, updateProductQuantities, expireCoupon, findMatchingProductIds, generateOrderId } = require('../../helpers/cart_order');
+const { removeCartItems, updateProductQuantities, expireCoupon, generateOrderId } = require('../../helpers/cart_order');
 const OrderModel = require('../../model/order.model');
 const ProductModel = require('../../model/product.model');
 
@@ -127,6 +127,29 @@ exports.GetAllOrder = async (req, res) => {
                 endIndex: endIndex
             }
         });
+    } catch (exc) {
+        console.error(exc.message);
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
+    };
+};
+
+// Order delivered
+exports.OrderDelivered = async (req, res) => {
+    const { orderId } = req.params;
+    try {
+        const order = await OrderModel.findOne({ orderId });
+        if (!order) {
+            return res.status(400).json({ success: false, message: "No Order Found With This OrderID!" });
+        }
+        await OrderModel.findByIdAndUpdate(
+            { _id: order._id },
+            {
+                $set: { status: "delivered" }
+            },
+            { new: true }
+        );
+
+        return res.status(200).json({ success: true, message: "Order Delivered" })
     } catch (exc) {
         console.error(exc.message);
         return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });

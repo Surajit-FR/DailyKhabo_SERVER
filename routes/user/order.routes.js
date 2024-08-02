@@ -15,5 +15,15 @@ router.post('/take/order', [
     ModelAuth(ValidateOrder),
 ], OrderController.TakeOrder);
 
+// Get all order
+router.get('/get/all/orders', [
+    VerifyToken,
+], OrderController.GetAllOrder);
+
+// Order delivered
+router.post('/order/delivered/:orderId', [
+    VerifyToken,
+], OrderController.OrderDelivered);
+
 
 module.exports = router;
