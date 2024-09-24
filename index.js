@@ -34,7 +34,10 @@ ConnectToDataBase()
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+}));
 app.use(express.static(__dirname + '/public'));
 app.use(morgan('dev'));
 
