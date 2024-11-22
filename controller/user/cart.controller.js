@@ -69,6 +69,56 @@ exports.UpdateCartQuantity = async (req, res) => {
     };
 };
 
+// Sync Cart Controller
+exports.SyncCart = async (req, res) => {
+    try {
+        const decoded_token = req.decoded_token;
+        const userId = decoded_token._id;
+
+        for (const item of req.productData) {
+            const productId = item.product;
+            const cartQuantity = item.cart_quantity;
+
+            // Ensure `productId` and `cartQuantity` are valid
+            if (!productId || !cartQuantity || !item.productData) {
+                console.log("Invalid item in productData:", item);
+                continue;
+            }
+
+            // Retrieve product details from `item.productData`
+            const productDetails = item.productData;
+
+            // Check if the product exists in the user's cart
+            let existingCart = await CartModel.findOne({ user: userId, product: productId });
+
+            if (existingCart) {
+                const newQuantity = existingCart.cart_quantity + cartQuantity;
+
+                // Ensure the new quantity does not exceed available stock
+                if (newQuantity > productDetails.productQuantity) {
+                    console.log(`Insufficient stock for product ${productId}`);
+                    continue;
+                }
+                existingCart.cart_quantity = newQuantity;
+                await existingCart.save();
+            } else {
+                // Add a new cart item
+                const newCart = new CartModel({
+                    user: userId,
+                    product: productId,
+                    cart_quantity: cartQuantity,
+                });
+                await newCart.save();
+            }
+        }
+
+        return res.status(200).json({ success: true, message: "Cart synced successfully." });
+    } catch (exc) {
+        console.error(exc);
+        return res.status(500).json({ success: false, message: exc.message, error: "Internal server error" });
+    }
+};
+
 // DeleteCartItem
 exports.DeleteCartItem = async (req, res) => {
     const { product_id } = req.params;

@@ -24,6 +24,13 @@ router.post('/update/cart/quantity', [
     CheckProductStock,
 ], CartController.UpdateCartQuantity);
 
+// Sync cart
+router.post('/sync/cart', [
+    RequestRate.Limiter,
+    VerifyToken,
+    CheckProductStock,
+], CartController.SyncCart);
+
 // Delete cart Item
 router.delete('/delete/cart/item/:product_id', [
     RequestRate.Limiter,
